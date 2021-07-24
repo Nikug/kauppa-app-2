@@ -8,11 +8,14 @@ interface Props {
 export const ListItem = (props: Props) => {
   const { item } = props;
 
-  const classes = classNames("w-full", "shadow", "border-gray-300", "rounded");
-
-  return (
-    <div className="bg-red-300 w-full shadow border-gray-300 rounded py-2 px-4">
-      {item.item}
-    </div>
+  const classes = classNames(
+    "w-full",
+    "shadow",
+    "border-gray-300",
+    "rounded",
+    "py-2",
+    "px-4"
   );
+
+  return <div className={classes}>{item.item}</div>;
 };
