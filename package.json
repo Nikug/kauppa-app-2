@@ -25,7 +25,7 @@
     "test": "craco test",
     "eject": "craco eject",
     "watch:css": "postcss src/tailwind.css -o src/index.css",
-    "watch": "chokidar \"./src/**/*.{js,ts,tsx}\" -c \"npm run watch:css\"",
+    "watch": "chokidar \"./src/**/*.{ts,tsx}\" -c \"npm run watch:css\"",
     "dev": "concurrently \"npm run watch\" \"npm run start\""
   },
   "browserslist": {
