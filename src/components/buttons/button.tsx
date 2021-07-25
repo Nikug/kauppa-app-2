@@ -6,12 +6,9 @@ const classes = classNames(
   "px-4",
   "text-white",
   "font-semibold",
-  "rounded-lg",
-  "shadow-md",
-  "bg-green-400",
-  "hover:bg-green-500",
+  "rounded",
+  "shadow",
   "focus:outline-none",
-  "focus:ring-2",
   "focus:ring-green-400",
   "focus:ring-opacity-75"
 );
@@ -27,10 +24,22 @@ export const Button = (
       HTMLButtonElement
     >
 ) => {
-  const { text, className, ...rest } = props;
+  const { text, className, disabled, ...rest } = props;
+
+  console.log(disabled);
 
   return (
-    <button className={classNames(classes, className)} {...rest}>
+    <button
+      className={classNames(classes, className, {
+        "bg-gray-300": disabled,
+        "hover:bg-gray-300": disabled,
+        "cursor-default": disabled,
+        "bg-green-400": !disabled,
+        "hover:bg-green-500": !disabled,
+        "focus:ring-2": !disabled,
+      })}
+      {...rest}
+    >
       {text}
     </button>
   );

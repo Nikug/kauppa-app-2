@@ -23,6 +23,7 @@ const containerStyles = classNames(
 export const Home = () => {
   const [items, setItems] = useState<ListItem[]>([]);
   const [uniqueId, setUniqueId] = useState<number>(-1);
+  const [isEditing, setEditing] = useState<string | null>(null);
 
   const getUniqueId = () => {
     const newId = uniqueId;
@@ -92,7 +93,12 @@ export const Home = () => {
                           {...draggableProvided.draggableProps}
                           {...draggableProvided.dragHandleProps}
                         >
-                          <ListItem item={item} setItem={setItem} />
+                          <ListItem
+                            item={item}
+                            setItem={setItem}
+                            setItemEditing={setEditing}
+                            editedItem={isEditing}
+                          />
                         </div>
                       )}
                     </Draggable>
