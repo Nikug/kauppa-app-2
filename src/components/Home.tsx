@@ -8,6 +8,7 @@ import {
 } from "react-beautiful-dnd";
 import React, { useState } from "react";
 
+import { Button } from "./buttons/button";
 import { ListItem } from "./ListItem";
 import classNames from "classnames";
 
@@ -50,6 +51,10 @@ export const Home = () => {
     });
   };
 
+  const removeItem = (id: string) => {
+    setItems((prev) => prev.filter((item) => item.id !== id));
+  };
+
   const handleReorder = (result: DropResult) => {
     const { destination, source, draggableId } = result;
     if (!destination) return;
@@ -69,12 +74,7 @@ export const Home = () => {
   return (
     <div className={containerStyles}>
       <h3 className="text-3xl font-bold my-5">Header</h3>
-      <button
-        className="bg-blue-400 py-2 px-4 rounded shadow"
-        onClick={() => createItem()}
-      >
-        Add Item
-      </button>
+      <Button text="Add Item" onClick={() => createItem()} />
       <DragDropContext onDragEnd={handleReorder}>
         <div>
           <Droppable droppableId="main">
