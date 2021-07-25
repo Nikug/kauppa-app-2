@@ -26,8 +26,6 @@ export const Button = (
 ) => {
   const { text, className, disabled, ...rest } = props;
 
-  console.log(disabled);
-
   return (
     <button
       className={classNames(classes, className, {

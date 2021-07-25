@@ -58,6 +58,12 @@ export const ListItem = (props: Props) => {
     }
   };
 
+  const handleEnter = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter") {
+      handleUpdate();
+    }
+  };
+
   return (
     <div className={classNames(itemStyles, { "bg-gray-100": disabled })}>
       {isEditing ? (
@@ -68,7 +74,9 @@ export const ListItem = (props: Props) => {
           <TextInput
             ref={inputRef}
             defaultValue={item.item}
-            className="flex-grow"
+            className="flex-grow text-gray-700 font-semibold"
+            onKeyDown={handleEnter}
+            autoFocus
           />
           <div className="flex gap-2">
             <Button text="Cancel" onClick={() => handleEditing(false)} />
@@ -77,7 +85,15 @@ export const ListItem = (props: Props) => {
         </div>
       ) : (
         <div className="flex justify-between items-center">
-          <p>{item.item}</p>
+          <p
+            className={classNames(
+              "font-semibold",
+              { "text-gray-700": !disabled },
+              { "text-gray-500": disabled }
+            )}
+          >
+            {item.item}
+          </p>
           <Button
             text="Edit"
             onClick={() => handleEditing(true)}
