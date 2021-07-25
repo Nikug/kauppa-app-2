@@ -17,7 +17,9 @@ const containerStyles = classNames(
   "md:w-2/3",
   "sm:w-3/4",
   "w-full",
-  "mx-auto"
+  "mx-auto",
+  "px-1",
+  "sm:px-0"
 );
 
 export const Home = () => {
@@ -37,6 +39,7 @@ export const Home = () => {
       item: "",
     };
     setItems((prev) => [...prev, newItem]);
+    setEditing(newItem.id);
   };
 
   const setItem = (id: string, value: string) => {

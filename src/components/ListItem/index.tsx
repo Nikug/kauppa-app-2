@@ -25,10 +25,11 @@ interface Props {
 
 export const ListItem = (props: Props) => {
   const { item, editedItem, setItem, setItemEditing } = props;
-  const [isEditing, setEditing] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const inputContainerRef = useRef<HTMLDivElement>(null);
+
   const disabled = editedItem != null && editedItem !== item.id;
+  const isEdited = editedItem === item.id;
 
   useEffect(() => {
     document.addEventListener("mousedown", handleOutsideClick);
@@ -39,13 +40,11 @@ export const ListItem = (props: Props) => {
     if (!inputRef) return;
     const newValue = inputRef.current?.value;
     setItem(item.id, newValue ?? "");
-    setEditing(false);
     setItemEditing(null);
   };
 
   const handleEditing = (state: boolean) => {
     if (disabled) return;
-    setEditing(state);
     state ? setItemEditing(item.id) : setItemEditing(null);
   };
 
@@ -66,7 +65,7 @@ export const ListItem = (props: Props) => {
 
   return (
     <div className={classNames(itemStyles, { "bg-gray-100": disabled })}>
-      {isEditing ? (
+      {isEdited ? (
         <div
           ref={inputContainerRef}
           className="flex justify-between items-center gap-2"
