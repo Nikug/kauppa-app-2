@@ -6,6 +6,7 @@ import classNames from "classnames";
 
 const itemStyles = classNames(
   "w-full",
+  "bg-white",
   "shadow",
   "border-gray-300",
   "border",

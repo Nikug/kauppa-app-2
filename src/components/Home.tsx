@@ -1,3 +1,11 @@
+import {
+  DragDropContext,
+  Draggable,
+  DraggableProvided,
+  DropResult,
+  Droppable,
+  DroppableProvided,
+} from "react-beautiful-dnd";
 import React, { useState } from "react";
 
 import { ListItem } from "./ListItem";
@@ -25,7 +33,6 @@ export const Home = () => {
   const createItem = () => {
     const newItem = {
       id: getUniqueId().toString(),
-      order: items.length,
       item: "",
     };
     setItems((prev) => [...prev, newItem]);
@@ -39,7 +46,21 @@ export const Home = () => {
     });
   };
 
-  console.log(items);
+  const handleReorder = (result: DropResult) => {
+    const { destination, source, draggableId } = result;
+    if (!destination) return;
+    if (
+      destination.droppableId === source.droppableId &&
+      destination.index === source.index
+    )
+      return;
+
+    const newItems = Array.from(items);
+    const reorderItem = newItems.splice(source.index, 1);
+    newItems.splice(destination.index, 0, reorderItem[0]);
+
+    setItems(newItems);
+  };
 
   return (
     <div className={containerStyles}>
@@ -50,11 +71,39 @@ export const Home = () => {
       >
         Add Item
       </button>
-      <div className="flex flex-col gap-1">
-        {items.map((item) => (
-          <ListItem key={item.id} item={item} setItem={setItem} />
-        ))}
-      </div>
+      <DragDropContext onDragEnd={handleReorder}>
+        <div>
+          <Droppable droppableId="main">
+            {(droppableProvided: DroppableProvided) => (
+              <div
+                {...droppableProvided.droppableProps}
+                ref={droppableProvided.innerRef}
+              >
+                <div className="flex flex-col gap-1">
+                  {items.map((item, index) => (
+                    <Draggable
+                      key={item.id}
+                      draggableId={item.id}
+                      index={index}
+                    >
+                      {(draggableProvided: DraggableProvided) => (
+                        <div
+                          ref={draggableProvided.innerRef}
+                          {...draggableProvided.draggableProps}
+                          {...draggableProvided.dragHandleProps}
+                        >
+                          <ListItem item={item} setItem={setItem} />
+                        </div>
+                      )}
+                    </Draggable>
+                  ))}
+                </div>
+                {droppableProvided.placeholder}
+              </div>
+            )}
+          </Droppable>
+        </div>
+      </DragDropContext>
     </div>
   );
 };
