@@ -11,6 +11,8 @@ import React, { useState } from "react";
 import { Button } from "./buttons/button";
 import { ListItem } from "./ListItem";
 import classNames from "classnames";
+import { fakeItems } from "./fakeData";
+import { updateItemList } from "../utilities/listItem";
 
 const containerStyles = classNames(
   "xl:w-1/3",
@@ -24,7 +26,7 @@ const containerStyles = classNames(
 );
 
 export const Home = () => {
-  const [items, setItems] = useState<ListItem[]>([]);
+  const [items, setItems] = useState<ListItem[]>(fakeItems);
   const [uniqueId, setUniqueId] = useState<number>(-1);
   const [isEditing, setEditing] = useState<string | null>(null);
 
@@ -43,11 +45,9 @@ export const Home = () => {
     setEditing(newItem.id);
   };
 
-  const setItem = (id: string, value: string) => {
+  const setItem = (ids: string[], value: string) => {
     setItems((prev) => {
-      return prev.map((oldItem): ListItem => {
-        return oldItem.id === id ? { ...oldItem, item: value } : oldItem;
-      });
+      return updateItemList(prev, ids, value);
     });
   };
 

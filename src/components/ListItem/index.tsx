@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 
 import { Button } from "../buttons/button";
+import { SublistContainer } from "./SublistContainer";
 import { TextInput } from "../inputs/textInput";
 import classNames from "classnames";
 
@@ -19,7 +20,7 @@ const itemStyles = classNames(
 interface Props {
   item: ListItem;
   editedItem: string | null;
-  setItem(id: string, value: string): void;
+  setItem(ids: string[], value: string): void;
   setItemEditing(id: string | null): void;
 }
 
@@ -39,7 +40,7 @@ export const ListItem = (props: Props) => {
   const handleUpdate = () => {
     if (!inputRef) return;
     const newValue = inputRef.current?.value;
-    setItem(item.id, newValue ?? "");
+    setItem([item.id], newValue ?? "");
     setItemEditing(null);
   };
 
@@ -100,6 +101,12 @@ export const ListItem = (props: Props) => {
           />
         </div>
       )}
+      <SublistContainer
+        items={item.subitems}
+        editedItem={editedItem}
+        setItem={(ids, value) => setItem([...ids, item.id], value)}
+        setItemEditing={setItemEditing}
+      />
     </div>
   );
 };
