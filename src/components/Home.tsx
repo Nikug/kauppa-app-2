@@ -7,12 +7,17 @@ import {
   DroppableProvided,
 } from "react-beautiful-dnd";
 import React, { useState } from "react";
+import {
+  findAndRemoveWithId,
+  findWithId,
+  insertWithId,
+  updateItemList,
+} from "../utilities/listItem";
 
 import { Button } from "./buttons/button";
 import { ListItem } from "./ListItem";
 import classNames from "classnames";
 import { fakeItems } from "./fakeData";
-import { updateItemList } from "../utilities/listItem";
 
 const containerStyles = classNames(
   "xl:w-1/3",
@@ -24,6 +29,8 @@ const containerStyles = classNames(
   "px-1",
   "sm:px-0"
 );
+
+const MAIN_ID = "main";
 
 export const Home = () => {
   const [items, setItems] = useState<ListItem[]>(fakeItems);
@@ -46,27 +53,30 @@ export const Home = () => {
   };
 
   const setItem = (ids: string[], value: string) => {
-    setItems((prev) => {
-      return updateItemList(prev, ids, value);
-    });
-  };
-
-  const removeItem = (id: string) => {
-    setItems((prev) => prev.filter((item) => item.id !== id));
+    setItems((prev) => updateItemList(prev, ids, value));
   };
 
   const handleReorder = (result: DropResult) => {
     const { destination, source, draggableId } = result;
+
     if (!destination) return;
     if (
       destination.droppableId === source.droppableId &&
       destination.index === source.index
     )
       return;
+    if (destination.droppableId === draggableId) return;
 
-    const newItems = Array.from(items);
-    const reorderItem = newItems.splice(source.index, 1);
-    newItems.splice(destination.index, 0, reorderItem[0]);
+    const foundItem = findAndRemoveWithId(items, draggableId, source.index);
+    console.log("found:", foundItem?.id, "targetId:", destination.droppableId);
+    if (!foundItem) return;
+
+    const newItems = insertWithId(
+      items,
+      foundItem,
+      destination.droppableId,
+      destination.index
+    );
 
     setItems(newItems);
   };
@@ -77,7 +87,7 @@ export const Home = () => {
       <Button text="Add Item" onClick={() => createItem()} />
       <DragDropContext onDragEnd={handleReorder}>
         <div>
-          <Droppable droppableId="main">
+          <Droppable droppableId={MAIN_ID}>
             {(droppableProvided: DroppableProvided) => (
               <div
                 {...droppableProvided.droppableProps}
@@ -85,26 +95,14 @@ export const Home = () => {
               >
                 <div className="flex flex-col gap-1">
                   {items.map((item, index) => (
-                    <Draggable
+                    <ListItem
                       key={item.id}
-                      draggableId={item.id}
-                      index={index}
-                    >
-                      {(draggableProvided: DraggableProvided) => (
-                        <div
-                          ref={draggableProvided.innerRef}
-                          {...draggableProvided.draggableProps}
-                          {...draggableProvided.dragHandleProps}
-                        >
-                          <ListItem
-                            item={item}
-                            setItem={setItem}
-                            setItemEditing={setEditing}
-                            editedItem={isEditing}
-                          />
-                        </div>
-                      )}
-                    </Draggable>
+                      item={item}
+                      order={index}
+                      setItem={setItem}
+                      setItemEditing={setEditing}
+                      editedItem={isEditing}
+                    />
                   ))}
                 </div>
                 {droppableProvided.placeholder}

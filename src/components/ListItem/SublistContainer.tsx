@@ -16,10 +16,11 @@ export const SublistContainer = (props: Props) => {
 
   return items ? (
     <div className={styles}>
-      {items.map((item) => (
+      {items.map((item, index) => (
         <ListItem
           key={item.id}
           item={item}
+          order={index}
           editedItem={editedItem}
           setItem={setItem}
           setItemEditing={setItemEditing}

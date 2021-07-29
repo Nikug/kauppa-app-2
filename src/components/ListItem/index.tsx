@@ -1,3 +1,9 @@
+import {
+  Draggable,
+  DraggableProvided,
+  Droppable,
+  DroppableProvided,
+} from "react-beautiful-dnd";
 import React, { useEffect, useRef, useState } from "react";
 
 import { Button } from "../buttons/button";
@@ -19,13 +25,14 @@ const itemStyles = classNames(
 
 interface Props {
   item: ListItem;
+  order: number;
   editedItem: string | null;
   setItem(ids: string[], value: string): void;
   setItemEditing(id: string | null): void;
 }
 
 export const ListItem = (props: Props) => {
-  const { item, editedItem, setItem, setItemEditing } = props;
+  const { item, order, editedItem, setItem, setItemEditing } = props;
   const inputRef = useRef<HTMLInputElement>(null);
   const inputContainerRef = useRef<HTMLDivElement>(null);
 
@@ -65,48 +72,74 @@ export const ListItem = (props: Props) => {
   };
 
   return (
-    <div className={classNames(itemStyles, { "bg-gray-100": disabled })}>
-      {isEdited ? (
+    <Draggable draggableId={item.id} index={order}>
+      {(draggableProvided: DraggableProvided) => (
         <div
-          ref={inputContainerRef}
-          className="flex justify-between items-center gap-2"
+          {...draggableProvided.draggableProps}
+          {...draggableProvided.dragHandleProps}
+          ref={draggableProvided.innerRef}
         >
-          <TextInput
-            ref={inputRef}
-            defaultValue={item.item}
-            className="flex-grow text-gray-700 font-semibold"
-            onKeyDown={handleEnter}
-            autoFocus
-          />
-          <div className="flex gap-2">
-            <Button text="Cancel" onClick={() => handleEditing(false)} />
-            <Button text="Ok" onClick={handleUpdate} />
-          </div>
-        </div>
-      ) : (
-        <div className="flex justify-between items-center">
-          <p
-            className={classNames(
-              "font-semibold",
-              { "text-gray-700": !disabled },
-              { "text-gray-500": disabled }
+          <Droppable droppableId={item.id}>
+            {(droppableProvided: DroppableProvided) => (
+              <div
+                {...droppableProvided.droppableProps}
+                ref={droppableProvided.innerRef}
+                className={classNames(
+                  itemStyles,
+                  { "bg-gray-100": disabled },
+                  "bg-red-500 bg-opacity-50"
+                )}
+              >
+                {isEdited ? (
+                  <div
+                    ref={inputContainerRef}
+                    className="flex justify-between items-center gap-2"
+                  >
+                    <TextInput
+                      ref={inputRef}
+                      defaultValue={item.item}
+                      className="flex-grow text-gray-700 font-semibold"
+                      onKeyDown={handleEnter}
+                      autoFocus
+                    />
+                    <div className="flex gap-2">
+                      <Button
+                        text="Cancel"
+                        onClick={() => handleEditing(false)}
+                      />
+                      <Button text="Ok" onClick={handleUpdate} />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex justify-between items-center">
+                    <p
+                      className={classNames(
+                        "font-semibold",
+                        { "text-gray-700": !disabled },
+                        { "text-gray-500": disabled }
+                      )}
+                    >
+                      {item.item}
+                    </p>
+                    <Button
+                      text="Edit"
+                      onClick={() => handleEditing(true)}
+                      disabled={disabled}
+                    />
+                  </div>
+                )}
+                <SublistContainer
+                  items={item.subitems}
+                  editedItem={editedItem}
+                  setItem={(ids, value) => setItem([...ids, item.id], value)}
+                  setItemEditing={setItemEditing}
+                />
+                {droppableProvided.placeholder}
+              </div>
             )}
-          >
-            {item.item}
-          </p>
-          <Button
-            text="Edit"
-            onClick={() => handleEditing(true)}
-            disabled={disabled}
-          />
+          </Droppable>
         </div>
       )}
-      <SublistContainer
-        items={item.subitems}
-        editedItem={editedItem}
-        setItem={(ids, value) => setItem([...ids, item.id], value)}
-        setItemEditing={setItemEditing}
-      />
-    </div>
+    </Draggable>
   );
 };
