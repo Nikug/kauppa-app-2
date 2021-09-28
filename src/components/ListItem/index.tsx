@@ -4,7 +4,7 @@ import {
   Droppable,
   DroppableProvided,
 } from "react-beautiful-dnd";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 
 import { Button } from "../buttons/button";
 import { SublistContainer } from "./SublistContainer";

@@ -1,7 +1,5 @@
 import {
   DragDropContext,
-  Draggable,
-  DraggableProvided,
   DropResult,
   Droppable,
   DroppableProvided,
@@ -9,8 +7,7 @@ import {
 import React, { useState } from "react";
 import {
   findAndRemoveWithId,
-  findWithId,
-  insertWithId,
+  insertWithIdAndIndex,
   updateItemList,
 } from "../utilities/listItem";
 
@@ -67,18 +64,18 @@ export const Home = () => {
       return;
     if (destination.droppableId === draggableId) return;
 
-    const foundItem = findAndRemoveWithId(items, draggableId, source.index);
-    console.log("found:", foundItem?.id, "targetId:", destination.droppableId);
-    if (!foundItem) return;
+    const itemsCopy = [...items];
+    const foundItem = findAndRemoveWithId(itemsCopy, draggableId);
 
-    const newItems = insertWithId(
-      items,
+    if (!foundItem) return;
+    insertWithIdAndIndex(
+      itemsCopy,
       foundItem,
       destination.droppableId,
       destination.index
     );
 
-    setItems(newItems);
+    setItems(itemsCopy);
   };
 
   return (
