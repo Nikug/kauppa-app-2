@@ -4,7 +4,7 @@ import {
   Droppable,
   DroppableProvided,
 } from "react-beautiful-dnd";
-import React, { useEffect, useRef } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 
 import { Button } from "../buttons/button";
 import { SublistContainer } from "./SublistContainer";
@@ -39,30 +39,33 @@ export const ListItem = (props: Props) => {
   const disabled = editedItem != null && editedItem !== item.id;
   const isEdited = editedItem === item.id;
 
-  useEffect(() => {
-    document.addEventListener("mousedown", handleOutsideClick);
-    return () => document.removeEventListener("mousedown", handleOutsideClick);
-  }, []);
-
-  const handleUpdate = () => {
+  const handleUpdate = useCallback(() => {
     if (!inputRef) return;
     const newValue = inputRef.current?.value;
     setItem([item.id], newValue ?? "");
     setItemEditing(null);
-  };
+  }, [inputRef, setItem, setItemEditing, item.id]);
+
+  const handleOutsideClick = useCallback(
+    (event: MouseEvent) => {
+      if (
+        inputContainerRef.current &&
+        !inputContainerRef.current.contains(event.target as Node)
+      ) {
+        handleUpdate();
+      }
+    },
+    [inputContainerRef, handleUpdate]
+  );
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleOutsideClick);
+    return () => document.removeEventListener("mousedown", handleOutsideClick);
+  }, [handleOutsideClick]);
 
   const handleEditing = (state: boolean) => {
     if (disabled) return;
     state ? setItemEditing(item.id) : setItemEditing(null);
-  };
-
-  const handleOutsideClick = (event: MouseEvent) => {
-    if (
-      inputContainerRef.current &&
-      !inputContainerRef.current.contains(event.target as Node)
-    ) {
-      handleUpdate();
-    }
   };
 
   const handleEnter = (event: React.KeyboardEvent<HTMLInputElement>) => {
