@@ -2,7 +2,7 @@ import { ListItem } from ".";
 import React from "react";
 import classNames from "classnames";
 
-const styles = classNames();
+const styles = classNames("min-h-16");
 
 interface Props {
   items?: ListItem[];

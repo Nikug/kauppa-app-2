@@ -6,6 +6,7 @@ export const fakeItems: ListItem[] = [
       {
         id: "2",
         item: "Item 2",
+        subitems: [],
       },
       {
         id: "3",
@@ -14,6 +15,7 @@ export const fakeItems: ListItem[] = [
           {
             id: "4",
             item: "Item 4",
+            subitems: [],
           },
         ],
       },

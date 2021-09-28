@@ -7,6 +7,8 @@ import {
 import React, { useCallback, useEffect, useRef } from "react";
 
 import { Button } from "../buttons/button";
+import { DefaultView } from "./DefaultView";
+import { EditView } from "./EditView";
 import { SublistContainer } from "./SublistContainer";
 import { TextInput } from "../inputs/textInput";
 import classNames from "classnames";
@@ -82,6 +84,22 @@ export const ListItem = (props: Props) => {
           {...draggableProvided.dragHandleProps}
           ref={draggableProvided.innerRef}
         >
+          {isEdited ? (
+            <EditView
+              item={item}
+              inputContainerRef={inputContainerRef}
+              inputRef={inputRef}
+              handleEnter={handleEnter}
+              handleEditing={handleEditing}
+              handleUpdate={handleUpdate}
+            />
+          ) : (
+            <DefaultView
+              item={item}
+              disabled={disabled}
+              handleEditing={handleEditing}
+            />
+          )}
           <Droppable droppableId={item.id}>
             {(droppableProvided: DroppableProvided) => (
               <div
@@ -93,44 +111,6 @@ export const ListItem = (props: Props) => {
                   "bg-red-500 bg-opacity-50"
                 )}
               >
-                {isEdited ? (
-                  <div
-                    ref={inputContainerRef}
-                    className="flex justify-between items-center gap-2"
-                  >
-                    <TextInput
-                      ref={inputRef}
-                      defaultValue={item.item}
-                      className="flex-grow text-gray-700 font-semibold"
-                      onKeyDown={handleEnter}
-                      autoFocus
-                    />
-                    <div className="flex gap-2">
-                      <Button
-                        text="Cancel"
-                        onClick={() => handleEditing(false)}
-                      />
-                      <Button text="Ok" onClick={handleUpdate} />
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex justify-between items-center">
-                    <p
-                      className={classNames(
-                        "font-semibold",
-                        { "text-gray-700": !disabled },
-                        { "text-gray-500": disabled }
-                      )}
-                    >
-                      {item.item}
-                    </p>
-                    <Button
-                      text="Edit"
-                      onClick={() => handleEditing(true)}
-                      disabled={disabled}
-                    />
-                  </div>
-                )}
                 <SublistContainer
                   items={item.subitems}
                   editedItem={editedItem}

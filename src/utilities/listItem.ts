@@ -41,22 +41,21 @@ export const findAndRemoveWithId = (
 };
 
 export const insertWithIdAndIndex = (
-  items: ListItem[],
+  rootItem: ListItem,
   item: ListItem,
   target: string,
   index: number
 ): void => {
-  for (const subItem of items) {
-    if (subItem.id === target) {
-      if (subItem.subitems == null) {
-        subItem.subitems = [item];
-      } else {
-        subItem.subitems.splice(index, 0, item);
-      }
-      return;
+  if (rootItem.id === target) {
+    if (rootItem.subitems) {
+      rootItem.subitems.splice(index, 0, item);
     } else {
-      if (!item.subitems) continue;
-      insertWithIdAndIndex(item.subitems, item, target, index);
+      rootItem.subitems = [item];
     }
+    return;
+  }
+  if (!rootItem.subitems) return;
+  for (const subItem of rootItem.subitems) {
+    insertWithIdAndIndex(subItem, item, target, index);
   }
 };

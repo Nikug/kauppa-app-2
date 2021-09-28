@@ -67,9 +67,11 @@ export const Home = () => {
     const itemsCopy = [...items];
     const foundItem = findAndRemoveWithId(itemsCopy, draggableId);
 
+    console.log("inserting to", destination.droppableId, destination.index);
+
     if (!foundItem) return;
     insertWithIdAndIndex(
-      itemsCopy,
+      { id: MAIN_ID, item: "", subitems: itemsCopy },
       foundItem,
       destination.droppableId,
       destination.index
@@ -89,6 +91,7 @@ export const Home = () => {
               <div
                 {...droppableProvided.droppableProps}
                 ref={droppableProvided.innerRef}
+                className="h-screen"
               >
                 <div className="flex flex-col gap-1">
                   {items.map((item, index) => (
