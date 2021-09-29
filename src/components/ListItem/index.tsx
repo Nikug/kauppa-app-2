@@ -84,23 +84,7 @@ export const ListItem = (props: Props) => {
           {...draggableProvided.dragHandleProps}
           ref={draggableProvided.innerRef}
         >
-          {isEdited ? (
-            <EditView
-              item={item}
-              inputContainerRef={inputContainerRef}
-              inputRef={inputRef}
-              handleEnter={handleEnter}
-              handleEditing={handleEditing}
-              handleUpdate={handleUpdate}
-            />
-          ) : (
-            <DefaultView
-              item={item}
-              disabled={disabled}
-              handleEditing={handleEditing}
-            />
-          )}
-          <Droppable droppableId={item.id}>
+          <Droppable droppableId={item.id} isCombineEnabled>
             {(droppableProvided: DroppableProvided) => (
               <div
                 {...droppableProvided.droppableProps}
@@ -111,6 +95,22 @@ export const ListItem = (props: Props) => {
                   "bg-red-500 bg-opacity-50"
                 )}
               >
+                {isEdited ? (
+                  <EditView
+                    item={item}
+                    inputContainerRef={inputContainerRef}
+                    inputRef={inputRef}
+                    handleEnter={handleEnter}
+                    handleEditing={handleEditing}
+                    handleUpdate={handleUpdate}
+                  />
+                ) : (
+                  <DefaultView
+                    item={item}
+                    disabled={disabled}
+                    handleEditing={handleEditing}
+                  />
+                )}
                 <SublistContainer
                   items={item.subitems}
                   editedItem={editedItem}

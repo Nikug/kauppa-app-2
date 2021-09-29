@@ -54,27 +54,37 @@ export const Home = () => {
   };
 
   const handleReorder = (result: DropResult) => {
-    const { destination, source, draggableId } = result;
+    const { destination, combine, source, draggableId } = result;
+    console.log(result);
 
-    if (!destination) return;
+    // If combining
+    // - combine droppableId === source, draggableId === target
+
+    const targetId = destination?.droppableId ?? combine?.draggableId;
+    if (!targetId) return;
+
+    // If no combine
     if (
-      destination.droppableId === source.droppableId &&
-      destination.index === source.index
+      !combine &&
+      targetId === source.droppableId &&
+      destination?.index === source.index
     )
       return;
-    if (destination.droppableId === draggableId) return;
+
+    // If combine
+    if (combine && targetId === source.droppableId) return;
 
     const itemsCopy = [...items];
     const foundItem = findAndRemoveWithId(itemsCopy, draggableId);
 
-    console.log("inserting to", destination.droppableId, destination.index);
+    console.log("inserting to", targetId, destination?.index);
 
     if (!foundItem) return;
     insertWithIdAndIndex(
       { id: MAIN_ID, item: "", subitems: itemsCopy },
       foundItem,
-      destination.droppableId,
-      destination.index
+      targetId,
+      destination?.index
     );
 
     setItems(itemsCopy);
@@ -85,31 +95,29 @@ export const Home = () => {
       <h3 className="text-3xl font-bold my-5">Header</h3>
       <Button text="Add Item" onClick={() => createItem()} />
       <DragDropContext onDragEnd={handleReorder}>
-        <div>
-          <Droppable droppableId={MAIN_ID}>
-            {(droppableProvided: DroppableProvided) => (
-              <div
-                {...droppableProvided.droppableProps}
-                ref={droppableProvided.innerRef}
-                className="h-screen"
-              >
-                <div className="flex flex-col gap-1">
-                  {items.map((item, index) => (
-                    <ListItem
-                      key={item.id}
-                      item={item}
-                      order={index}
-                      setItem={setItem}
-                      setItemEditing={setEditing}
-                      editedItem={isEditing}
-                    />
-                  ))}
-                </div>
-                {droppableProvided.placeholder}
+        <Droppable droppableId={MAIN_ID} isCombineEnabled>
+          {(droppableProvided: DroppableProvided) => (
+            <div
+              {...droppableProvided.droppableProps}
+              ref={droppableProvided.innerRef}
+              className="h-screen border"
+            >
+              <div className="flex flex-col gap-1">
+                {items.map((item, index) => (
+                  <ListItem
+                    key={item.id}
+                    item={item}
+                    order={index}
+                    setItem={setItem}
+                    setItemEditing={setEditing}
+                    editedItem={isEditing}
+                  />
+                ))}
               </div>
-            )}
-          </Droppable>
-        </div>
+              {droppableProvided.placeholder}
+            </div>
+          )}
+        </Droppable>
       </DragDropContext>
     </div>
   );

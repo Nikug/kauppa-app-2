@@ -44,11 +44,13 @@ export const insertWithIdAndIndex = (
   rootItem: ListItem,
   item: ListItem,
   target: string,
-  index: number
+  index: number | undefined
 ): void => {
   if (rootItem.id === target) {
     if (rootItem.subitems) {
-      rootItem.subitems.splice(index, 0, item);
+      index === undefined
+        ? rootItem.subitems.push(item)
+        : rootItem.subitems.splice(index, 0, item);
     } else {
       rootItem.subitems = [item];
     }
