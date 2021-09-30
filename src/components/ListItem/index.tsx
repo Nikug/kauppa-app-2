@@ -1,16 +1,8 @@
-import {
-  Draggable,
-  DraggableProvided,
-  Droppable,
-  DroppableProvided,
-} from "react-beautiful-dnd";
 import React, { useCallback, useEffect, useRef } from "react";
 
-import { Button } from "../buttons/button";
 import { DefaultView } from "./DefaultView";
 import { EditView } from "./EditView";
 import { SublistContainer } from "./SublistContainer";
-import { TextInput } from "../inputs/textInput";
 import classNames from "classnames";
 
 const itemStyles = classNames(
@@ -77,52 +69,35 @@ export const ListItem = (props: Props) => {
   };
 
   return (
-    <Draggable draggableId={item.id} index={order}>
-      {(draggableProvided: DraggableProvided) => (
-        <div
-          {...draggableProvided.draggableProps}
-          {...draggableProvided.dragHandleProps}
-          ref={draggableProvided.innerRef}
-        >
-          <Droppable droppableId={item.id} isCombineEnabled>
-            {(droppableProvided: DroppableProvided) => (
-              <div
-                {...droppableProvided.droppableProps}
-                ref={droppableProvided.innerRef}
-                className={classNames(
-                  itemStyles,
-                  { "bg-gray-100": disabled },
-                  "bg-red-500 bg-opacity-50"
-                )}
-              >
-                {isEdited ? (
-                  <EditView
-                    item={item}
-                    inputContainerRef={inputContainerRef}
-                    inputRef={inputRef}
-                    handleEnter={handleEnter}
-                    handleEditing={handleEditing}
-                    handleUpdate={handleUpdate}
-                  />
-                ) : (
-                  <DefaultView
-                    item={item}
-                    disabled={disabled}
-                    handleEditing={handleEditing}
-                  />
-                )}
-                <SublistContainer
-                  items={item.subitems}
-                  editedItem={editedItem}
-                  setItem={(ids, value) => setItem([...ids, item.id], value)}
-                  setItemEditing={setItemEditing}
-                />
-                {droppableProvided.placeholder}
-              </div>
-            )}
-          </Droppable>
-        </div>
+    <div
+      className={classNames(
+        itemStyles,
+        { "bg-gray-100": disabled },
+        "bg-red-500 bg-opacity-50"
       )}
-    </Draggable>
+    >
+      {isEdited ? (
+        <EditView
+          item={item}
+          inputContainerRef={inputContainerRef}
+          inputRef={inputRef}
+          handleEnter={handleEnter}
+          handleEditing={handleEditing}
+          handleUpdate={handleUpdate}
+        />
+      ) : (
+        <DefaultView
+          item={item}
+          disabled={disabled}
+          handleEditing={handleEditing}
+        />
+      )}
+      <SublistContainer
+        items={item.subitems}
+        editedItem={editedItem}
+        setItem={(ids, value) => setItem([...ids, item.id], value)}
+        setItemEditing={setItemEditing}
+      />
+    </div>
   );
 };

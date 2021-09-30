@@ -1,9 +1,3 @@
-import {
-  DragDropContext,
-  DropResult,
-  Droppable,
-  DroppableProvided,
-} from "react-beautiful-dnd";
 import React, { useState } from "react";
 import {
   findAndRemoveWithId,
@@ -12,6 +6,7 @@ import {
 } from "../utilities/listItem";
 
 import { Button } from "./buttons/button";
+import { DropResult } from "react-beautiful-dnd";
 import { ListItem } from "./ListItem";
 import classNames from "classnames";
 import { fakeItems } from "./fakeData";
@@ -94,31 +89,20 @@ export const Home = () => {
     <div className={containerStyles}>
       <h3 className="text-3xl font-bold my-5">Header</h3>
       <Button text="Add Item" onClick={() => createItem()} />
-      <DragDropContext onDragEnd={handleReorder}>
-        <Droppable droppableId={MAIN_ID} isCombineEnabled>
-          {(droppableProvided: DroppableProvided) => (
-            <div
-              {...droppableProvided.droppableProps}
-              ref={droppableProvided.innerRef}
-              className="h-screen border"
-            >
-              <div className="flex flex-col gap-1">
-                {items.map((item, index) => (
-                  <ListItem
-                    key={item.id}
-                    item={item}
-                    order={index}
-                    setItem={setItem}
-                    setItemEditing={setEditing}
-                    editedItem={isEditing}
-                  />
-                ))}
-              </div>
-              {droppableProvided.placeholder}
-            </div>
-          )}
-        </Droppable>
-      </DragDropContext>
+      <div className="h-screen border">
+        <div className="flex flex-col gap-1">
+          {items.map((item, index) => (
+            <ListItem
+              key={item.id}
+              item={item}
+              order={index}
+              setItem={setItem}
+              setItemEditing={setEditing}
+              editedItem={isEditing}
+            />
+          ))}
+        </div>
+      </div>
     </div>
   );
 };
