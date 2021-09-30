@@ -6,7 +6,6 @@ import {
 } from "../utilities/listItem";
 
 import { Button } from "./buttons/button";
-import { DropResult } from "react-beautiful-dnd";
 import { ListItem } from "./ListItem";
 import classNames from "classnames";
 import { fakeItems } from "./fakeData";
@@ -48,7 +47,7 @@ export const Home = () => {
     setItems((prev) => updateItemList(prev, ids, value));
   };
 
-  const handleReorder = (result: DropResult) => {
+  const handleReorder = (result: any) => {
     const { destination, combine, source, draggableId } = result;
     console.log(result);
 
