@@ -1,14 +1,12 @@
 import React, { useState } from "react";
-import {
-  findAndRemoveWithId,
-  insertWithIdAndIndex,
-  updateItemList,
-} from "../utilities/listItem";
 
 import { Button } from "./buttons/button";
-import { ListItem } from "./ListItem";
+import { DndProvider } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
+import { ListContainer } from "./ListContainer";
 import classNames from "classnames";
 import { fakeItems } from "./fakeData";
+import { updateItemList } from "../utilities/listItem";
 
 const containerStyles = classNames(
   "xl:w-1/3",
@@ -20,8 +18,6 @@ const containerStyles = classNames(
   "px-1",
   "sm:px-0"
 );
-
-const MAIN_ID = "main";
 
 export const Home = () => {
   const [items, setItems] = useState<ListItem[]>(fakeItems);
@@ -47,60 +43,20 @@ export const Home = () => {
     setItems((prev) => updateItemList(prev, ids, value));
   };
 
-  const handleReorder = (result: any) => {
-    const { destination, combine, source, draggableId } = result;
-    console.log(result);
-
-    // If combining
-    // - combine droppableId === source, draggableId === target
-
-    const targetId = destination?.droppableId ?? combine?.draggableId;
-    if (!targetId) return;
-
-    // If no combine
-    if (
-      !combine &&
-      targetId === source.droppableId &&
-      destination?.index === source.index
-    )
-      return;
-
-    // If combine
-    if (combine && targetId === source.droppableId) return;
-
-    const itemsCopy = [...items];
-    const foundItem = findAndRemoveWithId(itemsCopy, draggableId);
-
-    console.log("inserting to", targetId, destination?.index);
-
-    if (!foundItem) return;
-    insertWithIdAndIndex(
-      { id: MAIN_ID, item: "", subitems: itemsCopy },
-      foundItem,
-      targetId,
-      destination?.index
-    );
-
-    setItems(itemsCopy);
-  };
-
   return (
     <div className={containerStyles}>
       <h3 className="text-3xl font-bold my-5">Header</h3>
       <Button text="Add Item" onClick={() => createItem()} />
       <div className="h-screen border">
-        <div className="flex flex-col gap-1">
-          {items.map((item, index) => (
-            <ListItem
-              key={item.id}
-              item={item}
-              order={index}
-              setItem={setItem}
-              setItemEditing={setEditing}
-              editedItem={isEditing}
-            />
-          ))}
-        </div>
+        <DndProvider backend={HTML5Backend}>
+          <ListContainer
+            items={items}
+            setItem={setItem}
+            setItems={setItems}
+            setEditing={setEditing}
+            isEditing={isEditing}
+          />
+        </DndProvider>
       </div>
     </div>
   );

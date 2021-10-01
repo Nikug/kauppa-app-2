@@ -9,10 +9,11 @@ interface Props {
   editedItem: string | null;
   setItem(ids: string[], value: string): void;
   setItemEditing(id: string | null): void;
+  handleReorder(result: DndResult): void;
 }
 
 export const SublistContainer = (props: Props) => {
-  const { items, editedItem, setItem, setItemEditing } = props;
+  const { items, editedItem, setItem, setItemEditing, handleReorder } = props;
 
   return items ? (
     <div className={styles}>
@@ -24,6 +25,7 @@ export const SublistContainer = (props: Props) => {
           editedItem={editedItem}
           setItem={setItem}
           setItemEditing={setItemEditing}
+          handleReorder={handleReorder}
         />
       ))}
     </div>

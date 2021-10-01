@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useRef } from "react";
+import { useDrag, useDrop } from "react-dnd";
 
 import { DefaultView } from "./DefaultView";
 import { EditView } from "./EditView";
@@ -23,12 +24,44 @@ interface Props {
   editedItem: string | null;
   setItem(ids: string[], value: string): void;
   setItemEditing(id: string | null): void;
+  handleReorder(result: DndResult): void;
 }
 
 export const ListItem = (props: Props) => {
-  const { item, order, editedItem, setItem, setItemEditing } = props;
+  const { item, order, editedItem, setItem, setItemEditing, handleReorder } =
+    props;
   const inputRef = useRef<HTMLInputElement>(null);
   const inputContainerRef = useRef<HTMLDivElement>(null);
+
+  const [{ isDragging }, drag] = useDrag<
+    DndSource,
+    unknown,
+    { isDragging: boolean }
+  >({
+    type: "item",
+    item: { id: item.id, index: order },
+    collect: (monitor) => ({
+      isDragging: monitor.isDragging(),
+    }),
+  });
+
+  const [, drop] = useDrop(() => ({
+    accept: "item",
+    drop: (sourceItem: DndSource, monitor) => {
+      if (monitor.didDrop()) return;
+      console.log("list item got it", sourceItem);
+      handleReorder({
+        source: sourceItem.id,
+        sourceIndex: sourceItem.index,
+        target: item.id,
+        targetIndex: 0,
+      });
+    },
+    collect: (monitor) => ({
+      isOver: monitor.isOver(),
+      canDrop: monitor.canDrop(),
+    }),
+  }));
 
   const disabled = editedItem != null && editedItem !== item.id;
   const isEdited = editedItem === item.id;
@@ -70,33 +103,37 @@ export const ListItem = (props: Props) => {
 
   return (
     <div
+      ref={drag}
       className={classNames(
         itemStyles,
         { "bg-gray-100": disabled },
         "bg-red-500 bg-opacity-50"
       )}
     >
-      {isEdited ? (
-        <EditView
-          item={item}
-          inputContainerRef={inputContainerRef}
-          inputRef={inputRef}
-          handleEnter={handleEnter}
-          handleEditing={handleEditing}
-          handleUpdate={handleUpdate}
-        />
-      ) : (
-        <DefaultView
-          item={item}
-          disabled={disabled}
-          handleEditing={handleEditing}
-        />
-      )}
+      <div ref={drop}>
+        {isEdited ? (
+          <EditView
+            item={item}
+            inputContainerRef={inputContainerRef}
+            inputRef={inputRef}
+            handleEnter={handleEnter}
+            handleEditing={handleEditing}
+            handleUpdate={handleUpdate}
+          />
+        ) : (
+          <DefaultView
+            item={item}
+            disabled={disabled}
+            handleEditing={handleEditing}
+          />
+        )}
+      </div>
       <SublistContainer
         items={item.subitems}
         editedItem={editedItem}
         setItem={(ids, value) => setItem([...ids, item.id], value)}
         setItemEditing={setItemEditing}
+        handleReorder={handleReorder}
       />
     </div>
   );
