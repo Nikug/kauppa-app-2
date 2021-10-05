@@ -6,6 +6,7 @@ const styles = classNames("min-h-16");
 
 interface Props {
   items?: ListItem[];
+  parents: string[];
   editedItem: string | null;
   setItem(ids: string[], value: string): void;
   setItemEditing(id: string | null): void;
@@ -13,7 +14,8 @@ interface Props {
 }
 
 export const SublistContainer = (props: Props) => {
-  const { items, editedItem, setItem, setItemEditing, handleReorder } = props;
+  const { items, parents, editedItem, setItem, setItemEditing, handleReorder } =
+    props;
 
   return items ? (
     <div className={styles}>
@@ -21,6 +23,7 @@ export const SublistContainer = (props: Props) => {
         <ListItem
           key={item.id}
           item={item}
+          parents={parents}
           order={index}
           editedItem={editedItem}
           setItem={setItem}

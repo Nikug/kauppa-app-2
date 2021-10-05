@@ -34,7 +34,9 @@ export const findAndRemoveWithId = (
       if (result) return result;
     }
   } else {
+    console.log("items before splice", [...items]);
     const [foundItem] = items.splice(foundIndex, 1);
+    console.log("items after splice", [...items]);
     return foundItem;
   }
   return null;
@@ -60,4 +62,13 @@ export const insertWithIdAndIndex = (
   for (const subItem of rootItem.subitems) {
     insertWithIdAndIndex(subItem, item, target, index);
   }
+};
+
+export const checkDrop = (
+  sourceId: string,
+  targetId: string,
+  targetParents: string[]
+) => {
+  if (sourceId === targetId) return false;
+  return !targetParents.includes(sourceId);
 };

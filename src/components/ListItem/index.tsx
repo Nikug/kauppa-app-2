@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef } from "react";
 import { useDrag, useDrop } from "react-dnd";
-
+import { checkDrop } from "../../utilities/listItem";
 import { DefaultView } from "./DefaultView";
 import { EditView } from "./EditView";
 import { SublistContainer } from "./SublistContainer";
@@ -20,6 +20,7 @@ const itemStyles = classNames(
 
 interface Props {
   item: ListItem;
+  parents: string[];
   order: number;
   editedItem: string | null;
   setItem(ids: string[], value: string): void;
@@ -28,8 +29,15 @@ interface Props {
 }
 
 export const ListItem = (props: Props) => {
-  const { item, order, editedItem, setItem, setItemEditing, handleReorder } =
-    props;
+  const {
+    item,
+    parents,
+    order,
+    editedItem,
+    setItem,
+    setItemEditing,
+    handleReorder,
+  } = props;
   const inputRef = useRef<HTMLInputElement>(null);
   const inputContainerRef = useRef<HTMLDivElement>(null);
 
@@ -39,13 +47,13 @@ export const ListItem = (props: Props) => {
     { isDragging: boolean }
   >({
     type: "item",
-    item: { id: item.id, index: order },
+    item: { id: item.id, index: order, parents: parents },
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),
   });
 
-  const [, drop] = useDrop(() => ({
+  const [{ canDrop }, drop] = useDrop(() => ({
     accept: "item",
     drop: (sourceItem: DndSource, monitor) => {
       if (monitor.didDrop()) return;
@@ -56,6 +64,9 @@ export const ListItem = (props: Props) => {
         target: item.id,
         targetIndex: 0,
       });
+    },
+    canDrop: (sourceItem) => {
+      return checkDrop(sourceItem.id, item.id, parents);
     },
     collect: (monitor) => ({
       isOver: monitor.isOver(),
@@ -107,7 +118,7 @@ export const ListItem = (props: Props) => {
       className={classNames(
         itemStyles,
         { "bg-gray-100": disabled },
-        "bg-red-500 bg-opacity-50"
+        canDrop ? "bg-green-500 bg-opacity-50" : "bg-red-500 bg-opacity-50"
       )}
     >
       <div ref={drop}>
@@ -130,6 +141,7 @@ export const ListItem = (props: Props) => {
       </div>
       <SublistContainer
         items={item.subitems}
+        parents={[...parents, item.id]}
         editedItem={editedItem}
         setItem={(ids, value) => setItem([...ids, item.id], value)}
         setItemEditing={setItemEditing}

@@ -7,6 +7,7 @@ declare interface ListItem {
 declare interface DndSource {
   id: string;
   index: number;
+  parents: string[];
 }
 
 declare interface DndResult {
