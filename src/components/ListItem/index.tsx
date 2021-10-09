@@ -25,19 +25,12 @@ interface Props {
   editedItem: string | null;
   setItem(ids: string[], value: string): void;
   setItemEditing(id: string | null): void;
-  handleReorder(result: DndResult): void;
+  reorder(result: DndResult): void;
 }
 
 export const ListItem = (props: Props) => {
-  const {
-    item,
-    parents,
-    order,
-    editedItem,
-    setItem,
-    setItemEditing,
-    handleReorder,
-  } = props;
+  const { item, parents, order, editedItem, setItem, setItemEditing, reorder } =
+    props;
   const inputRef = useRef<HTMLInputElement>(null);
   const inputContainerRef = useRef<HTMLDivElement>(null);
 
@@ -53,12 +46,11 @@ export const ListItem = (props: Props) => {
     }),
   });
 
-  const [{ canDrop }, drop] = useDrop(() => ({
+  const [{ canDrop, isOver }, drop] = useDrop(() => ({
     accept: "item",
     drop: (sourceItem: DndSource, monitor) => {
       if (monitor.didDrop()) return;
-      console.log("list item got it", sourceItem);
-      handleReorder({
+      reorder({
         source: sourceItem.id,
         sourceIndex: sourceItem.index,
         target: item.id,
@@ -118,7 +110,9 @@ export const ListItem = (props: Props) => {
       className={classNames(
         itemStyles,
         { "bg-gray-100": disabled },
-        canDrop ? "bg-green-500 bg-opacity-50" : "bg-red-500 bg-opacity-50"
+        "bg-red-500 bg-opacity-50",
+        { "bg-green-500": canDrop },
+        { "bg-blue-500": isOver }
       )}
     >
       <div ref={drop}>
@@ -145,7 +139,7 @@ export const ListItem = (props: Props) => {
         editedItem={editedItem}
         setItem={(ids, value) => setItem([...ids, item.id], value)}
         setItemEditing={setItemEditing}
-        handleReorder={handleReorder}
+        reorder={reorder}
       />
     </div>
   );

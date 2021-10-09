@@ -1,3 +1,4 @@
+import React, { useEffect } from "react";
 import {
   checkDrop,
   findAndRemoveWithId,
@@ -5,10 +6,11 @@ import {
 } from "../../utilities/listItem";
 import clonedeep from "lodash.clonedeep";
 import { ListItem } from "../ListItem";
-import React from "react";
 import { useDrop } from "react-dnd";
+import { MAIN_ID } from "../Home";
 
 interface Props {
+  reorder(result: DndResult): void;
   items: ListItem[];
   setItem(ids: string[], value: string): void;
   setItems(items: ListItem[]): void;
@@ -16,16 +18,13 @@ interface Props {
   isEditing: string | null;
 }
 
-const MAIN_ID = "main";
-
 export const ListContainer = (props: Props) => {
-  const { items, setItem, setEditing, isEditing, setItems } = props;
-
+  const { items, reorder, setItem, setEditing, isEditing, setItems } = props;
   const [, drop] = useDrop({
     accept: "item",
     drop: (droppedItem: DndSource, monitor) => {
       if (monitor.didDrop()) return;
-      handleReorder({
+      reorder({
         source: droppedItem.id,
         sourceIndex: droppedItem.index,
         target: MAIN_ID,
@@ -41,25 +40,6 @@ export const ListContainer = (props: Props) => {
     }),
   });
 
-  const handleReorder = (result: DndResult) => {
-    const { source, target, sourceIndex, targetIndex } = result;
-
-    if (!target || !source) return;
-    if (target === source) return;
-
-    const itemsCopy = clonedeep(items);
-    const foundItem = findAndRemoveWithId(itemsCopy, source);
-
-    if (!foundItem) return;
-    insertWithIdAndIndex(
-      { id: MAIN_ID, item: "", subitems: itemsCopy },
-      foundItem,
-      target,
-      targetIndex
-    );
-    setItems(itemsCopy);
-  };
-
   return (
     <div ref={drop} className="flex flex-col gap-1">
       {items.map((item, index) => (
@@ -71,7 +51,7 @@ export const ListContainer = (props: Props) => {
           setItem={setItem}
           setItemEditing={setEditing}
           editedItem={isEditing}
-          handleReorder={handleReorder}
+          reorder={reorder}
         />
       ))}
     </div>

@@ -1,12 +1,18 @@
+import classNames from "classnames";
+import clonedeep from "lodash.clonedeep";
 import React, { useState } from "react";
-
-import { Button } from "./buttons/button";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import { ListContainer } from "./ListContainer";
-import classNames from "classnames";
+import {
+  findAndRemoveWithId,
+  insertWithIdAndIndex,
+  updateItemList,
+} from "../utilities/listItem";
+import { Button } from "./buttons/button";
 import { fakeItems } from "./fakeData";
-import { updateItemList } from "../utilities/listItem";
+import { ListContainer } from "./ListContainer";
+
+export const MAIN_ID = "main";
 
 const containerStyles = classNames(
   "xl:w-1/3",
@@ -43,6 +49,26 @@ export const Home = () => {
     setItems((prev) => updateItemList(prev, ids, value));
   };
 
+  const handleReorder = (result: DndResult) => {
+    const { source, target, sourceIndex, targetIndex } = result;
+    if (!target || !source) return;
+    if (target === source) return;
+
+    setItems((prev) => {
+      const itemsCopy = clonedeep(prev);
+      const foundItem = findAndRemoveWithId(itemsCopy, source);
+
+      if (!foundItem) return itemsCopy;
+      insertWithIdAndIndex(
+        { id: MAIN_ID, item: "", subitems: itemsCopy },
+        foundItem,
+        target,
+        targetIndex
+      );
+      return itemsCopy;
+    });
+  };
+
   return (
     <div className={containerStyles}>
       <h3 className="text-3xl font-bold my-5">Header</h3>
@@ -50,6 +76,7 @@ export const Home = () => {
       <div className="h-screen border">
         <DndProvider backend={HTML5Backend}>
           <ListContainer
+            reorder={handleReorder}
             items={items}
             setItem={setItem}
             setItems={setItems}

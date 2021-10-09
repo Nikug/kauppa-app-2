@@ -1,3 +1,4 @@
+import clonedeep from "lodash.clonedeep";
 export const updateItemList = (
   items: ListItem[],
   ids: string[],
@@ -34,9 +35,7 @@ export const findAndRemoveWithId = (
       if (result) return result;
     }
   } else {
-    console.log("items before splice", [...items]);
     const [foundItem] = items.splice(foundIndex, 1);
-    console.log("items after splice", [...items]);
     return foundItem;
   }
   return null;
@@ -47,7 +46,7 @@ export const insertWithIdAndIndex = (
   item: ListItem,
   target: string,
   index: number | undefined
-): void => {
+): boolean => {
   if (rootItem.id === target) {
     if (rootItem.subitems) {
       index === undefined
@@ -56,12 +55,14 @@ export const insertWithIdAndIndex = (
     } else {
       rootItem.subitems = [item];
     }
-    return;
+    return true;
   }
-  if (!rootItem.subitems) return;
+  if (!rootItem.subitems) return false;
   for (const subItem of rootItem.subitems) {
-    insertWithIdAndIndex(subItem, item, target, index);
+    const result = insertWithIdAndIndex(subItem, item, target, index);
+    if (result) return true;
   }
+  return false;
 };
 
 export const checkDrop = (
