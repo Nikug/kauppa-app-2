@@ -1,7 +1,12 @@
 declare interface ListItem {
   id: string;
   item: string;
-  subitems?: ListItem[];
+}
+
+declare interface ItemFolder {
+  id: string;
+  name: string;
+  items: ListItem[];
 }
 
 declare interface DndSource {

@@ -3,7 +3,6 @@ import { useDrag, useDrop } from "react-dnd";
 import { checkDrop } from "../../utilities/listItem";
 import { DefaultView } from "./DefaultView";
 import { EditView } from "./EditView";
-import { SublistContainer } from "./SublistContainer";
 import classNames from "classnames";
 
 const itemStyles = classNames(
@@ -19,17 +18,17 @@ const itemStyles = classNames(
 );
 
 interface Props {
+  folderId: string;
   item: ListItem;
-  parents: string[];
   order: number;
   editedItem: string | null;
-  setItem(ids: string[], value: string): void;
-  setItemEditing(id: string | null): void;
+  setItem(folderId: string, itemId: string, value: string): void;
+  setEditing(folderId: string | null, itemId: string | null): void;
   reorder(result: DndResult): void;
 }
 
 export const ListItem = (props: Props) => {
-  const { item, parents, order, editedItem, setItem, setItemEditing, reorder } =
+  const { folderId, item, order, editedItem, setItem, setEditing, reorder } =
     props;
   const inputRef = useRef<HTMLInputElement>(null);
   const inputContainerRef = useRef<HTMLDivElement>(null);
@@ -40,7 +39,7 @@ export const ListItem = (props: Props) => {
     { isDragging: boolean }
   >({
     type: "item",
-    item: { id: item.id, index: order, parents: parents },
+    item: { id: item.id, index: order, parents: [] },
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),
@@ -48,8 +47,8 @@ export const ListItem = (props: Props) => {
 
   const [{ canDrop, isOver }, drop] = useDrop(() => ({
     accept: "item",
-    drop: (sourceItem: DndSource, monitor) => {
-      if (monitor.didDrop()) return;
+    hover: (sourceItem: DndSource, monitor) => {
+      if (sourceItem.id === item.id) return;
       reorder({
         source: sourceItem.id,
         sourceIndex: sourceItem.index,
@@ -58,7 +57,7 @@ export const ListItem = (props: Props) => {
       });
     },
     canDrop: (sourceItem) => {
-      return checkDrop(sourceItem.id, item.id, parents);
+      return checkDrop(sourceItem.id, item.id, []) ?? false;
     },
     collect: (monitor) => ({
       isOver: monitor.isOver(),
@@ -72,9 +71,9 @@ export const ListItem = (props: Props) => {
   const handleUpdate = useCallback(() => {
     if (!inputRef) return;
     const newValue = inputRef.current?.value;
-    setItem([item.id], newValue ?? "");
-    setItemEditing(null);
-  }, [inputRef, setItem, setItemEditing, item.id]);
+    setItem(folderId, item.id, newValue ?? "");
+    setEditing(null, null);
+  }, [inputRef, setItem, setEditing, item.id, folderId]);
 
   const handleOutsideClick = useCallback(
     (event: MouseEvent) => {
@@ -95,7 +94,7 @@ export const ListItem = (props: Props) => {
 
   const handleEditing = (state: boolean) => {
     if (disabled) return;
-    state ? setItemEditing(item.id) : setItemEditing(null);
+    state ? setEditing(folderId, item.id) : setEditing(null, null);
   };
 
   const handleEnter = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -112,7 +111,8 @@ export const ListItem = (props: Props) => {
         { "bg-gray-100": disabled },
         "bg-red-500 bg-opacity-50",
         { "bg-green-500": canDrop },
-        { "bg-blue-500": isOver }
+        { "bg-blue-500": isOver },
+        { "opacity-0": isDragging }
       )}
     >
       <div ref={drop}>
@@ -133,14 +133,6 @@ export const ListItem = (props: Props) => {
           />
         )}
       </div>
-      <SublistContainer
-        items={item.subitems}
-        parents={[...parents, item.id]}
-        editedItem={editedItem}
-        setItem={(ids, value) => setItem([...ids, item.id], value)}
-        setItemEditing={setItemEditing}
-        reorder={reorder}
-      />
     </div>
   );
 };

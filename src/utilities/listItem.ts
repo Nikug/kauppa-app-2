@@ -1,43 +1,38 @@
-import clonedeep from "lodash.clonedeep";
 export const updateItemList = (
-  items: ListItem[],
-  ids: string[],
+  folders: ItemFolder[],
+  folderId: string,
+  itemId: string,
   value: string
+): ItemFolder[] => {
+  const foundFolder = folders.find((folder) => folder.id === folderId);
+  if (!foundFolder) return folders;
+  const updatedItems = foundFolder.items.map((item) =>
+    item.id === itemId ? { ...item, item: value } : item
+  );
+  const newFolders = folders.map((folder) =>
+    folder.id === folderId ? { ...folder, items: updatedItems } : folder
+  );
+  return newFolders;
+};
+
+export const addNewItem = (
+  folders: ItemFolder[],
+  folderId: string,
+  item: ListItem
 ) => {
-  let currentList: ListItem[] | undefined = items;
-  let foundItem: ListItem | undefined = undefined;
-
-  for (let i = ids.length - 1; i >= 0; i--) {
-    if (!currentList) break;
-
-    foundItem = currentList.find((item) => item.id === ids[i]);
-    if (!foundItem) break;
-
-    if (i !== 0) {
-      currentList = foundItem?.subitems;
-    } else {
-      foundItem.item = value;
+  const newFolders = folders.map((folder) => {
+    if (folder.id === folderId) {
+      return { ...folder, items: [...folder.items, item] };
     }
-  }
-
-  return items;
+    return folder;
+  });
+  return newFolders;
 };
 
 export const findAndRemoveWithId = (
   items: ListItem[],
   target: string
 ): ListItem | null => {
-  const foundIndex = items.findIndex((item) => item.id === target);
-  if (foundIndex === -1) {
-    for (const subItem of items) {
-      if (!subItem.subitems) continue;
-      const result = findAndRemoveWithId(subItem.subitems, target);
-      if (result) return result;
-    }
-  } else {
-    const [foundItem] = items.splice(foundIndex, 1);
-    return foundItem;
-  }
   return null;
 };
 
@@ -46,23 +41,8 @@ export const insertWithIdAndIndex = (
   item: ListItem,
   target: string,
   index: number | undefined
-): boolean => {
-  if (rootItem.id === target) {
-    if (rootItem.subitems) {
-      index === undefined
-        ? rootItem.subitems.push(item)
-        : rootItem.subitems.splice(index, 0, item);
-    } else {
-      rootItem.subitems = [item];
-    }
-    return true;
-  }
-  if (!rootItem.subitems) return false;
-  for (const subItem of rootItem.subitems) {
-    const result = insertWithIdAndIndex(subItem, item, target, index);
-    if (result) return true;
-  }
-  return false;
+) => {
+  return null;
 };
 
 export const checkDrop = (
@@ -70,6 +50,5 @@ export const checkDrop = (
   targetId: string,
   targetParents: string[]
 ) => {
-  if (sourceId === targetId) return false;
-  return !targetParents.includes(sourceId);
+  return null;
 };
