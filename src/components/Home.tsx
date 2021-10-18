@@ -1,16 +1,14 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import classNames from "classnames";
-import clonedeep from "lodash.clonedeep";
-import { DndProvider } from "react-dnd";
-import { HTML5Backend } from "react-dnd-html5-backend";
 import {
-  findAndRemoveWithId,
   updateItemList,
   addNewItem,
+  reorderItems,
 } from "../utilities/listItem";
 import { Button } from "./buttons/button";
 import { fakeItems } from "./fakeData";
-import { FolderContainer } from "./FolderContainer";
+import { Folder } from "./Folder";
+import { DragDropContext, DropResult } from "react-beautiful-dnd";
 
 export const MAIN_ID = "main";
 
@@ -58,45 +56,36 @@ export const Home = () => {
     setFolders((prev) => updateItemList(prev, folderId, itemId, value));
   };
 
-  const handleEditing = (folderId: string | null, itemId: string | null) => {
-    setEditing(itemId);
-  };
-
-  const handleReorder = (result: DndResult) => {
-    const { source, target, sourceIndex, targetIndex } = result;
-    if (!target || !source) return;
-    if (target === source) return;
-
-    // setItems((prev) => {
-    //   const itemsCopy = clonedeep(prev);
-    //   const foundItem = findAndRemoveWithId(itemsCopy, source);
-
-    //   if (!foundItem) return itemsCopy;
-    //   insertWithIdAndIndex(
-    //     { id: MAIN_ID, item: "", subitems: itemsCopy },
-    //     foundItem,
-    //     target,
-    //     targetIndex
-    //   );
-    //   return itemsCopy;
-    // });
-  };
+  const moveCard = useCallback((result: DropResult) => {
+    if (result.destination == null) return;
+    setFolders((prev) =>
+      reorderItems(
+        prev,
+        result.source.droppableId,
+        result.source.index,
+        result.destination?.droppableId,
+        result.destination?.index
+      )
+    );
+  }, []);
 
   return (
     <div className={containerStyles}>
       <h3 className="text-3xl font-bold my-5">Header</h3>
       <Button text="Add Item" onClick={() => createFolder()} />
       <div className="h-screen border">
-        <DndProvider backend={HTML5Backend}>
-          <FolderContainer
-            createItem={createItem}
-            reorder={handleReorder}
-            folders={folders}
-            setItem={setItem}
-            setEditing={handleEditing}
-            editedItem={isEditing}
-          />
-        </DndProvider>
+        <DragDropContext onDragEnd={moveCard}>
+          {folders.map((folder) => (
+            <Folder
+              createItem={createItem}
+              key={folder.id}
+              folder={folder}
+              setItem={setItem}
+              setEditing={setEditing}
+              editedItem={isEditing}
+            />
+          ))}
+        </DragDropContext>
       </div>
     </div>
   );

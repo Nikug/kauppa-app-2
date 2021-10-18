@@ -10,14 +10,13 @@ declare interface ItemFolder {
 }
 
 declare interface DndSource {
-  id: string;
-  index: number;
-  parents: string[];
+  sourceId: string;
+  sourceFolderId: string;
 }
 
 declare interface DndResult {
-  source?: string;
-  target?: string;
-  sourceIndex?: number;
-  targetIndex?: number;
+  sourceId: string;
+  sourceFolderId: string;
+  targetId: string;
+  targetFolderId: string;
 }

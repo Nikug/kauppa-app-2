@@ -29,26 +29,47 @@ export const addNewItem = (
   return newFolders;
 };
 
-export const findAndRemoveWithId = (
-  items: ListItem[],
-  target: string
-): ListItem | null => {
-  return null;
-};
-
-export const insertWithIdAndIndex = (
-  rootItem: ListItem,
-  item: ListItem,
-  target: string,
-  index: number | undefined
+export const reorderItems = (
+  folders: ItemFolder[],
+  sourceFolderId: string,
+  sourceIndex: number,
+  targetFolderId: string | undefined,
+  targetIndex: number | undefined
 ) => {
-  return null;
-};
+  if (targetFolderId == null || targetIndex == null) return folders;
+  if (sourceFolderId === targetFolderId && sourceIndex === targetIndex)
+    return folders;
 
-export const checkDrop = (
-  sourceId: string,
-  targetId: string,
-  targetParents: string[]
-) => {
-  return null;
+  const sourceFolderOriginal = folders.find(
+    (folder) => folder.id === sourceFolderId
+  );
+  if (!sourceFolderOriginal) return folders;
+  const sourceFolder = { ...sourceFolderOriginal };
+
+  sourceFolder.items = [...sourceFolder.items];
+  const [sourceItem] = sourceFolder.items.splice(sourceIndex, 1);
+
+  if (targetFolderId === sourceFolderId) {
+    sourceFolder.items.splice(targetIndex, 0, sourceItem);
+    const newFolders = folders.map((folder) =>
+      folder.id === sourceFolderId ? sourceFolder : folder
+    );
+    return newFolders;
+  }
+
+  const targetFolderOriginal = folders.find(
+    (folder) => folder.id === targetFolderId
+  );
+  if (!targetFolderOriginal) return folders;
+  const targetFolder = { ...targetFolderOriginal };
+
+  targetFolder.items = [...targetFolder.items];
+  targetFolder.items.splice(targetIndex, 0, sourceItem);
+  const newFolders = folders.map((folder) => {
+    if (folder.id === sourceFolder.id) return sourceFolder;
+    if (folder.id === targetFolder.id) return targetFolder;
+    return folder;
+  });
+
+  return newFolders;
 };

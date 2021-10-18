@@ -9,20 +9,12 @@ interface Props {
   editedItem: string | null;
   createItem(folderId: string): void;
   setItem(folderId: string, itemId: string, value: string): void;
-  setEditing(folderId: string | null, itemId: string | null): void;
-  reorder(result: DndResult): void;
+  setEditing(itemId: string | null): void;
 }
 
 export const Folder = (props: Props) => {
-  const {
-    folder,
-    disabled,
-    editedItem,
-    setItem,
-    setEditing,
-    reorder,
-    createItem,
-  } = props;
+  const { folder, disabled, editedItem, setItem, setEditing, createItem } =
+    props;
 
   return (
     <div className="">
@@ -44,7 +36,6 @@ export const Folder = (props: Props) => {
         editedItem={editedItem}
         setItem={setItem}
         setEditing={setEditing}
-        reorder={reorder}
       />
     </div>
   );

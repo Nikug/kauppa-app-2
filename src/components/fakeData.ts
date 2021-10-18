@@ -17,14 +17,14 @@ export const fakeItems: ItemFolder[] = [
       },
     ],
   },
-  {
-    id: "5",
-    name: "Folder 2",
-    items: [
-      {
-        id: "4",
-        item: "Item 4",
-      },
-    ],
-  },
+  // {
+  //   id: "5",
+  //   name: "Folder 2",
+  //   items: [
+  //     {
+  //       id: "4",
+  //       item: "Item 4",
+  //     },
+  //   ],
+  // },
 ];

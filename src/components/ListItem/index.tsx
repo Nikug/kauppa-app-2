@@ -1,9 +1,8 @@
 import React, { useCallback, useEffect, useRef } from "react";
-import { useDrag, useDrop } from "react-dnd";
-import { checkDrop } from "../../utilities/listItem";
 import { DefaultView } from "./DefaultView";
 import { EditView } from "./EditView";
 import classNames from "classnames";
+import { Draggable } from "react-beautiful-dnd";
 
 const itemStyles = classNames(
   "w-full",
@@ -23,47 +22,13 @@ interface Props {
   order: number;
   editedItem: string | null;
   setItem(folderId: string, itemId: string, value: string): void;
-  setEditing(folderId: string | null, itemId: string | null): void;
-  reorder(result: DndResult): void;
+  setEditing(itemId: string | null): void;
 }
 
 export const ListItem = (props: Props) => {
-  const { folderId, item, order, editedItem, setItem, setEditing, reorder } =
-    props;
+  const { folderId, item, order, editedItem, setItem, setEditing } = props;
   const inputRef = useRef<HTMLInputElement>(null);
   const inputContainerRef = useRef<HTMLDivElement>(null);
-
-  const [{ isDragging }, drag] = useDrag<
-    DndSource,
-    unknown,
-    { isDragging: boolean }
-  >({
-    type: "item",
-    item: { id: item.id, index: order, parents: [] },
-    collect: (monitor) => ({
-      isDragging: monitor.isDragging(),
-    }),
-  });
-
-  const [{ canDrop, isOver }, drop] = useDrop(() => ({
-    accept: "item",
-    hover: (sourceItem: DndSource, monitor) => {
-      if (sourceItem.id === item.id) return;
-      reorder({
-        source: sourceItem.id,
-        sourceIndex: sourceItem.index,
-        target: item.id,
-        targetIndex: 0,
-      });
-    },
-    canDrop: (sourceItem) => {
-      return checkDrop(sourceItem.id, item.id, []) ?? false;
-    },
-    collect: (monitor) => ({
-      isOver: monitor.isOver(),
-      canDrop: monitor.canDrop(),
-    }),
-  }));
 
   const disabled = editedItem != null && editedItem !== item.id;
   const isEdited = editedItem === item.id;
@@ -72,7 +37,7 @@ export const ListItem = (props: Props) => {
     if (!inputRef) return;
     const newValue = inputRef.current?.value;
     setItem(folderId, item.id, newValue ?? "");
-    setEditing(null, null);
+    setEditing(null);
   }, [inputRef, setItem, setEditing, item.id, folderId]);
 
   const handleOutsideClick = useCallback(
@@ -94,7 +59,7 @@ export const ListItem = (props: Props) => {
 
   const handleEditing = (state: boolean) => {
     if (disabled) return;
-    state ? setEditing(folderId, item.id) : setEditing(null, null);
+    state ? setEditing(item.id) : setEditing(null);
   };
 
   const handleEnter = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -104,35 +69,38 @@ export const ListItem = (props: Props) => {
   };
 
   return (
-    <div
-      ref={drag}
-      className={classNames(
-        itemStyles,
-        { "bg-gray-100": disabled },
-        "bg-red-500 bg-opacity-50",
-        { "bg-green-500": canDrop },
-        { "bg-blue-500": isOver },
-        { "opacity-0": isDragging }
-      )}
+    <Draggable
+      draggableId={item.id}
+      isDragDisabled={!!editedItem}
+      index={order}
     >
-      <div ref={drop}>
-        {isEdited ? (
-          <EditView
-            item={item}
-            inputContainerRef={inputContainerRef}
-            inputRef={inputRef}
-            handleEnter={handleEnter}
-            handleEditing={handleEditing}
-            handleUpdate={handleUpdate}
-          />
-        ) : (
-          <DefaultView
-            item={item}
-            disabled={disabled}
-            handleEditing={handleEditing}
-          />
-        )}
-      </div>
-    </div>
+      {(provided) => (
+        <div
+          className={classNames(itemStyles, { "bg-gray-100": disabled })}
+          ref={provided.innerRef}
+          {...provided.draggableProps}
+          {...provided.dragHandleProps}
+        >
+          <div>
+            {isEdited ? (
+              <EditView
+                item={item}
+                inputContainerRef={inputContainerRef}
+                inputRef={inputRef}
+                handleEnter={handleEnter}
+                handleEditing={handleEditing}
+                handleUpdate={handleUpdate}
+              />
+            ) : (
+              <DefaultView
+                item={item}
+                disabled={disabled}
+                handleEditing={handleEditing}
+              />
+            )}
+          </div>
+        </div>
+      )}
+    </Draggable>
   );
 };

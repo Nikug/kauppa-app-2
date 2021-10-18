@@ -1,35 +1,42 @@
-import { ListItem } from ".";
 import React from "react";
+import { ListItem } from ".";
 import classNames from "classnames";
+import { Droppable } from "react-beautiful-dnd";
 
-const styles = classNames("min-h-16");
+const styles = classNames("min-h-16 flex flex-col");
 
 interface Props {
   folderId: string;
   items?: ListItem[];
   editedItem: string | null;
   setItem(folderId: string, itemId: string, value: string): void;
-  setEditing(folderId: string | null, itemId: string | null): void;
-  reorder(result: DndResult): void;
+  setEditing(itemId: string | null): void;
 }
 
 export const SublistContainer = (props: Props) => {
-  const { folderId, items, editedItem, setItem, setEditing, reorder } = props;
-
+  const { folderId, items, editedItem, setItem, setEditing } = props;
   return items ? (
-    <div className={styles}>
-      {items.map((item, index) => (
-        <ListItem
-          folderId={folderId}
-          key={item.id}
-          item={item}
-          order={index}
-          editedItem={editedItem}
-          setItem={setItem}
-          setEditing={setEditing}
-          reorder={reorder}
-        />
-      ))}
-    </div>
+    <Droppable droppableId={folderId}>
+      {(provided) => (
+        <div
+          ref={provided.innerRef}
+          {...provided.droppableProps}
+          className={styles}
+        >
+          {items.map((item, index) => (
+            <ListItem
+              key={item.id}
+              folderId={folderId}
+              item={item}
+              order={index}
+              editedItem={editedItem}
+              setItem={setItem}
+              setEditing={setEditing}
+            />
+          ))}
+          {provided.placeholder}
+        </div>
+      )}
+    </Droppable>
   ) : null;
 };
