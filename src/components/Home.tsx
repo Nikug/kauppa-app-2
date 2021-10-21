@@ -1,16 +1,16 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import classNames from "classnames";
-import {
-  updateItemList,
-  addNewItem,
-  reorderItems,
-} from "../utilities/listItem";
+import { reorderItems, reorderFolders } from "../utilities/listItem";
 import { Button } from "./buttons/button";
 import { fakeItems } from "./fakeData";
 import { Folder } from "./Folder";
-import { DragDropContext, DropResult } from "react-beautiful-dnd";
+import { DragDropContext, Droppable, DropResult } from "react-beautiful-dnd";
 
 export const MAIN_ID = "main";
+export const DndTypes = {
+  folder: "folder",
+  item: "item",
+};
 
 const containerStyles = classNames(
   "xl:w-1/3",
@@ -24,7 +24,7 @@ const containerStyles = classNames(
 );
 
 export const Home = () => {
-  const [folders, setFolders] = useState<ItemFolder[]>(fakeItems);
+  const [folders, setFolders] = useState<FolderContainer>(fakeItems);
   const [uniqueId, setUniqueId] = useState<number>(-1);
   const [isEditing, setEditing] = useState<string | null>(null);
 
@@ -38,9 +38,13 @@ export const Home = () => {
     const newFolder: ItemFolder = {
       id: getUniqueId().toString(),
       name: "New folder",
-      items: [],
+      items: {},
+      itemOrder: [],
     };
-    setFolders((prev) => [...prev, newFolder]);
+    setFolders((prev) => ({
+      folders: { ...prev.folders, [newFolder.id]: newFolder },
+      folderOrder: [...prev.folderOrder, newFolder.id],
+    }));
   };
 
   const createItem = (folderId: string) => {
@@ -48,26 +52,46 @@ export const Home = () => {
       id: getUniqueId().toString(),
       item: "",
     };
-    setFolders((prev) => addNewItem(prev, folderId, newItem));
+    setFolders((prev) => {
+      const folder = { ...prev.folders[folderId] };
+      folder.items = { ...folder.items, [newItem.id]: newItem };
+      folder.itemOrder = [...folder.itemOrder, newItem.id];
+      return { ...prev, folders: { ...prev.folders, [folderId]: folder } };
+    });
     setEditing(newItem.id);
   };
 
   const setItem = (folderId: string, itemId: string, value: string) => {
-    setFolders((prev) => updateItemList(prev, folderId, itemId, value));
+    setFolders((prev) => {
+      prev.folders[folderId].items[itemId].item = value;
+      return prev;
+    });
   };
 
   const moveCard = useCallback((result: DropResult) => {
     if (result.destination == null) return;
-    setFolders((prev) =>
-      reorderItems(
-        prev,
-        result.source.droppableId,
-        result.source.index,
-        result.destination?.droppableId,
-        result.destination?.index
-      )
-    );
+    if (result.type === DndTypes.item) {
+      setFolders((prev) =>
+        reorderItems(
+          prev,
+          result.source.droppableId,
+          result.source.index,
+          result.destination?.droppableId,
+          result.destination?.index
+        )
+      );
+    }
+    if (result.type === DndTypes.folder) {
+      setFolders((prev) =>
+        reorderFolders(prev, result.source.index, result.destination?.index)
+      );
+    }
   }, []);
+
+  const orderedFolders = useMemo(() => {
+    const ordered = folders.folderOrder.map((order) => folders.folders[order]);
+    return ordered;
+  }, [folders]);
 
   return (
     <div className={containerStyles}>
@@ -75,16 +99,24 @@ export const Home = () => {
       <Button text="Add Item" onClick={() => createFolder()} />
       <div className="h-screen border">
         <DragDropContext onDragEnd={moveCard}>
-          {folders.map((folder) => (
-            <Folder
-              createItem={createItem}
-              key={folder.id}
-              folder={folder}
-              setItem={setItem}
-              setEditing={setEditing}
-              editedItem={isEditing}
-            />
-          ))}
+          <Droppable droppableId="main" type={DndTypes.folder}>
+            {(provided) => (
+              <div ref={provided.innerRef} {...provided.droppableProps}>
+                {orderedFolders.map((folder, index) => (
+                  <Folder
+                    createItem={createItem}
+                    key={folder.id}
+                    order={index}
+                    folder={folder}
+                    setItem={setItem}
+                    setEditing={setEditing}
+                    editedItem={isEditing}
+                  />
+                ))}
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
         </DragDropContext>
       </div>
     </div>

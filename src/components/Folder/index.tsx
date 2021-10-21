@@ -2,9 +2,11 @@ import React from "react";
 import classNames from "classnames";
 import { SublistContainer } from "../ListItem/SublistContainer";
 import { Button } from "../buttons/button";
+import { Draggable } from "react-beautiful-dnd";
 
 interface Props {
   folder: ItemFolder;
+  order: number;
   disabled?: boolean;
   editedItem: string | null;
   createItem(folderId: string): void;
@@ -13,26 +15,42 @@ interface Props {
 }
 
 export const Folder = (props: Props) => {
-  const { folder, disabled, editedItem, setItem, setEditing, createItem } =
-    props;
+  const {
+    folder,
+    order,
+    disabled,
+    editedItem,
+    setItem,
+    setEditing,
+    createItem,
+  } = props;
 
   return (
-    <div className="">
-      <div className="flex justify-between items-center py-2 px-4">
-        <p
-          className={classNames(
-            "font-semibold",
-            { "text-gray-700": !disabled },
-            { "text-gray-500": disabled }
-          )}
-        >
-          {folder.name}
-        </p>
-        <Button text="Add" onClick={() => createItem(folder.id)} />
-      </div>
+    <div className="bg-white">
+      <Draggable draggableId={folder.id} index={order}>
+        {(provided) => (
+          <div
+            className="flex justify-between items-center py-2 px-4"
+            ref={provided.innerRef}
+            {...provided.draggableProps}
+          >
+            <p
+              {...provided.dragHandleProps}
+              className={classNames(
+                "font-semibold",
+                { "text-gray-700": !disabled },
+                { "text-gray-500": disabled }
+              )}
+            >
+              {folder.name}
+            </p>
+            <Button text="Add" onClick={() => createItem(folder.id)} />
+          </div>
+        )}
+      </Draggable>
       <SublistContainer
         folderId={folder.id}
-        items={folder.items}
+        items={folder.itemOrder.map((item) => ({ ...folder.items[item] }))}
         editedItem={editedItem}
         setItem={setItem}
         setEditing={setEditing}

@@ -2,6 +2,7 @@ import React from "react";
 import { ListItem } from ".";
 import classNames from "classnames";
 import { Droppable } from "react-beautiful-dnd";
+import { DndTypes } from "../Home";
 
 const styles = classNames("min-h-16 flex flex-col");
 
@@ -16,7 +17,7 @@ interface Props {
 export const SublistContainer = (props: Props) => {
   const { folderId, items, editedItem, setItem, setEditing } = props;
   return items ? (
-    <Droppable droppableId={folderId}>
+    <Droppable droppableId={folderId} type={DndTypes.item}>
       {(provided) => (
         <div
           ref={provided.innerRef}

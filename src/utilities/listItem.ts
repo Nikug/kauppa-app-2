@@ -1,36 +1,5 @@
-export const updateItemList = (
-  folders: ItemFolder[],
-  folderId: string,
-  itemId: string,
-  value: string
-): ItemFolder[] => {
-  const foundFolder = folders.find((folder) => folder.id === folderId);
-  if (!foundFolder) return folders;
-  const updatedItems = foundFolder.items.map((item) =>
-    item.id === itemId ? { ...item, item: value } : item
-  );
-  const newFolders = folders.map((folder) =>
-    folder.id === folderId ? { ...folder, items: updatedItems } : folder
-  );
-  return newFolders;
-};
-
-export const addNewItem = (
-  folders: ItemFolder[],
-  folderId: string,
-  item: ListItem
-) => {
-  const newFolders = folders.map((folder) => {
-    if (folder.id === folderId) {
-      return { ...folder, items: [...folder.items, item] };
-    }
-    return folder;
-  });
-  return newFolders;
-};
-
 export const reorderItems = (
-  folders: ItemFolder[],
+  folders: FolderContainer,
   sourceFolderId: string,
   sourceIndex: number,
   targetFolderId: string | undefined,
@@ -40,36 +9,57 @@ export const reorderItems = (
   if (sourceFolderId === targetFolderId && sourceIndex === targetIndex)
     return folders;
 
-  const sourceFolderOriginal = folders.find(
-    (folder) => folder.id === sourceFolderId
-  );
-  if (!sourceFolderOriginal) return folders;
-  const sourceFolder = { ...sourceFolderOriginal };
+  const sourceFolder = { ...folders.folders[sourceFolderId] };
+  if (!sourceFolder) return folders;
 
-  sourceFolder.items = [...sourceFolder.items];
-  const [sourceItem] = sourceFolder.items.splice(sourceIndex, 1);
-
+  // Same folder
   if (targetFolderId === sourceFolderId) {
-    sourceFolder.items.splice(targetIndex, 0, sourceItem);
-    const newFolders = folders.map((folder) =>
-      folder.id === sourceFolderId ? sourceFolder : folder
-    );
-    return newFolders;
+    const [sourceItemId] = sourceFolder.itemOrder.splice(sourceIndex, 1);
+    sourceFolder.itemOrder.splice(targetIndex, 0, sourceItemId);
+
+    return {
+      ...folders,
+      [sourceFolderId]: sourceFolder,
+    };
   }
 
-  const targetFolderOriginal = folders.find(
-    (folder) => folder.id === targetFolderId
+  // Different folders
+  const [sourceId] = sourceFolder.itemOrder.splice(sourceIndex, 1);
+  const sourceItem = { ...sourceFolder.items[sourceId] };
+  const newSourceFolder: ItemFolder = {
+    ...sourceFolder,
+    items: {},
+    itemOrder: sourceFolder.itemOrder,
+  };
+  sourceFolder.itemOrder.map(
+    (itemId) => (newSourceFolder.items[itemId] = sourceFolder.items[itemId])
   );
-  if (!targetFolderOriginal) return folders;
-  const targetFolder = { ...targetFolderOriginal };
 
-  targetFolder.items = [...targetFolder.items];
-  targetFolder.items.splice(targetIndex, 0, sourceItem);
-  const newFolders = folders.map((folder) => {
-    if (folder.id === sourceFolder.id) return sourceFolder;
-    if (folder.id === targetFolder.id) return targetFolder;
-    return folder;
-  });
+  const targetFolder = { ...folders.folders[targetFolderId] };
+  targetFolder.itemOrder.splice(targetIndex, 0, sourceId);
+  targetFolder.items[sourceId] = sourceItem;
+
+  const newFolders = {
+    ...folders,
+    folders: {
+      ...folders.folders,
+      [sourceFolderId]: sourceFolder,
+      [targetFolderId]: targetFolder,
+    },
+  };
 
   return newFolders;
+};
+
+export const reorderFolders = (
+  folders: FolderContainer,
+  sourceIndex: number,
+  targetIndex: number | undefined
+) => {
+  if (targetIndex == null) return folders;
+  if (sourceIndex === targetIndex) return folders;
+  const foldersCopy = { ...folders };
+  const [sourceFolder] = foldersCopy.folderOrder.splice(sourceIndex, 1);
+  foldersCopy.folderOrder.splice(targetIndex, 0, sourceFolder);
+  return foldersCopy;
 };

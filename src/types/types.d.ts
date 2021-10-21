@@ -3,10 +3,16 @@ declare interface ListItem {
   item: string;
 }
 
+declare interface FolderContainer {
+  folders: Record<string, ItemFolder>;
+  folderOrder: string[];
+}
+
 declare interface ItemFolder {
   id: string;
   name: string;
-  items: ListItem[];
+  items: Record<string, ListItem>;
+  itemOrder: string[];
 }
 
 declare interface DndSource {
