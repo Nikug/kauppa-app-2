@@ -5,11 +5,11 @@ module.exports = {
     jest: true,
   },
   extends: [
-    "plugin:react/recommended",
     "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:react/recommended",
     "react-app",
     "react-app/jest",
-    "plugin:@typescript-eslint/recommended",
     "prettier",
   ],
   parser: "@typescript-eslint/parser",
@@ -23,6 +23,5 @@ module.exports = {
   plugins: ["react", "@typescript-eslint"],
   rules: {
     "@typescript-eslint/explicit-module-boundary-types": "off",
-    "react/display-name": "off",
   },
 };
