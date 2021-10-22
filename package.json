@@ -23,14 +23,12 @@
     "start": "cross-env TAILWIND_MODE=watch craco start",
     "build": "craco build",
     "test": "craco test",
-    "eject": "craco eject"
+    "eject": "craco eject",
+    "prepare": "husky install",
+    "lint": "eslint . --ext .ts,.tsx"
   },
   "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
+    "production": [">0.2%", "not dead", "not op_mini all"],
     "development": [
       "last 1 chrome version",
       "last 1 firefox version",
@@ -51,6 +49,7 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^5.1.0",
     "eslint-plugin-react": "^7.26.0",
+    "husky": "^7.0.4",
     "postcss": "^7.0.38",
     "tailwindcss": "npm:@tailwindcss/postcss7-compat@^2.2.16"
   }
