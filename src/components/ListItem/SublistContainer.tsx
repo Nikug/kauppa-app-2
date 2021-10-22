@@ -25,7 +25,7 @@ export const SublistContainer = (props: Props) => {
           {...provided.droppableProps}
           className={styles}
         >
-          {collapsed &&
+          {!collapsed &&
             items.map((item, index) => (
               <ListItem
                 key={item.id}

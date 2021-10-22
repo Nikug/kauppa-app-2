@@ -4,7 +4,12 @@ import { reorderItems, reorderFolders } from "../utilities/listItem";
 import { Button } from "./buttons/button";
 import { generateFakeItems } from "./fakeData";
 import { Folder } from "./Folder";
-import { DragDropContext, Droppable, DropResult } from "react-beautiful-dnd";
+import {
+  DragDropContext,
+  DragStart,
+  Droppable,
+  DropResult,
+} from "react-beautiful-dnd";
 
 export const MAIN_ID = "main";
 export const DndTypes = {
@@ -59,6 +64,7 @@ export const Home = () => {
       const folder = { ...prev.folders[folderId] };
       folder.items = { ...folder.items, [newItem.id]: newItem };
       folder.itemOrder = [...folder.itemOrder, newItem.id];
+      folder.collapsed = false;
       return { ...prev, folders: { ...prev.folders, [folderId]: folder } };
     });
     setEditing(newItem.id);
@@ -91,14 +97,15 @@ export const Home = () => {
     }
   }, []);
 
-  const toggleCollapse = (folderId: string) => {
+  const toggleCollapse = (folderId: string, collapsed?: boolean) => {
     setFolders((prev) => {
-      const collapsed = prev.folders[folderId].collapsed;
+      const newCollapsed =
+        collapsed == null ? !prev.folders[folderId].collapsed : collapsed;
       return {
         ...prev,
         folders: {
           ...prev.folders,
-          [folderId]: { ...prev.folders[folderId], collapsed: !collapsed },
+          [folderId]: { ...prev.folders[folderId], collapsed: newCollapsed },
         },
       };
     });
