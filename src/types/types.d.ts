@@ -11,6 +11,7 @@ declare interface FolderContainer {
 declare interface ItemFolder {
   id: string;
   name: string;
+  collapsed: boolean;
   items: Record<string, ListItem>;
   itemOrder: string[];
 }

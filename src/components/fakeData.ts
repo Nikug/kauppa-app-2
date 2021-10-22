@@ -1,43 +1,31 @@
-export const fakeItems: FolderContainer = {
-  folders: {
-    f1: {
-      id: "f1",
-      name: "Folder 1",
-      items: {
-        1: {
-          id: "1",
-          item: "Item 1",
-        },
-        2: {
-          id: "2",
-          item: "Item 2",
-        },
-        3: {
-          id: "3",
-          item: "Item 3",
-        },
-      },
-      itemOrder: ["1", "2", "3"],
-    },
-    f2: {
-      id: "f2",
-      name: "Folder 2",
-      items: {
-        4: {
-          id: "4",
-          item: "Item 4",
-        },
-        5: {
-          id: "5",
-          item: "Item 5",
-        },
-        6: {
-          id: "6",
-          item: "Item 6",
-        },
-      },
-      itemOrder: ["4", "5", "6"],
-    },
-  },
-  folderOrder: ["f1", "f2"],
+export const generateFakeItems = (folders: number, items: number) => {
+  let folderId = 1;
+  let itemId = 1;
+  const folderContainer: FolderContainer = {
+    folders: {},
+    folderOrder: [],
+  };
+
+  for (; folderId <= folders; folderId++) {
+    const newFolder: ItemFolder = {
+      id: `f-${folderId}`,
+      name: `Folder ${folderId}`,
+      collapsed: false,
+      items: {},
+      itemOrder: [],
+    };
+
+    for (; itemId <= items * folderId; itemId++) {
+      const newItem: ListItem = {
+        id: `i-${itemId}`,
+        item: `Item ${itemId}`,
+      };
+      newFolder.items[newItem.id] = newItem;
+      newFolder.itemOrder.push(newItem.id);
+    }
+
+    folderContainer.folders[newFolder.id] = newFolder;
+    folderContainer.folderOrder.push(newFolder.id);
+  }
+  return folderContainer;
 };

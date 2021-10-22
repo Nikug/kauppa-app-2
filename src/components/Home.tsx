@@ -2,7 +2,7 @@ import React, { useCallback, useMemo, useState } from "react";
 import classNames from "classnames";
 import { reorderItems, reorderFolders } from "../utilities/listItem";
 import { Button } from "./buttons/button";
-import { fakeItems } from "./fakeData";
+import { generateFakeItems } from "./fakeData";
 import { Folder } from "./Folder";
 import { DragDropContext, Droppable, DropResult } from "react-beautiful-dnd";
 
@@ -24,7 +24,9 @@ const containerStyles = classNames(
 );
 
 export const Home = () => {
-  const [folders, setFolders] = useState<FolderContainer>(fakeItems);
+  const [folders, setFolders] = useState<FolderContainer>(
+    generateFakeItems(2, 3)
+  );
   const [uniqueId, setUniqueId] = useState<number>(-1);
   const [isEditing, setEditing] = useState<string | null>(null);
 
@@ -38,6 +40,7 @@ export const Home = () => {
     const newFolder: ItemFolder = {
       id: getUniqueId().toString(),
       name: "New folder",
+      collapsed: false,
       items: {},
       itemOrder: [],
     };
@@ -88,6 +91,19 @@ export const Home = () => {
     }
   }, []);
 
+  const toggleCollapse = (folderId: string) => {
+    setFolders((prev) => {
+      const collapsed = prev.folders[folderId].collapsed;
+      return {
+        ...prev,
+        folders: {
+          ...prev.folders,
+          [folderId]: { ...prev.folders[folderId], collapsed: !collapsed },
+        },
+      };
+    });
+  };
+
   const orderedFolders = useMemo(() => {
     const ordered = folders.folderOrder.map((order) => folders.folders[order]);
     return ordered;
@@ -96,7 +112,7 @@ export const Home = () => {
   return (
     <div className={containerStyles}>
       <h3 className="text-3xl font-bold my-5">Header</h3>
-      <Button text="Add Item" onClick={() => createFolder()} />
+      <Button text="Add folder" onClick={() => createFolder()} />
       <div className="h-screen border">
         <DragDropContext onDragEnd={moveCard}>
           <Droppable droppableId="main" type={DndTypes.folder}>
@@ -111,6 +127,7 @@ export const Home = () => {
                     setItem={setItem}
                     setEditing={setEditing}
                     editedItem={isEditing}
+                    toggleCollapse={toggleCollapse}
                   />
                 ))}
                 {provided.placeholder}

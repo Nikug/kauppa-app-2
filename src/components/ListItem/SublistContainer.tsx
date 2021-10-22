@@ -10,12 +10,13 @@ interface Props {
   folderId: string;
   items?: ListItem[];
   editedItem: string | null;
+  collapsed: boolean;
   setItem(folderId: string, itemId: string, value: string): void;
   setEditing(itemId: string | null): void;
 }
 
 export const SublistContainer = (props: Props) => {
-  const { folderId, items, editedItem, setItem, setEditing } = props;
+  const { folderId, collapsed, items, editedItem, setItem, setEditing } = props;
   return items ? (
     <Droppable droppableId={folderId} type={DndTypes.item}>
       {(provided) => (
@@ -24,17 +25,18 @@ export const SublistContainer = (props: Props) => {
           {...provided.droppableProps}
           className={styles}
         >
-          {items.map((item, index) => (
-            <ListItem
-              key={item.id}
-              folderId={folderId}
-              item={item}
-              order={index}
-              editedItem={editedItem}
-              setItem={setItem}
-              setEditing={setEditing}
-            />
-          ))}
+          {collapsed &&
+            items.map((item, index) => (
+              <ListItem
+                key={item.id}
+                folderId={folderId}
+                item={item}
+                order={index}
+                editedItem={editedItem}
+                setItem={setItem}
+                setEditing={setEditing}
+              />
+            ))}
           {provided.placeholder}
         </div>
       )}

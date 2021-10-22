@@ -12,6 +12,7 @@ interface Props {
   createItem(folderId: string): void;
   setItem(folderId: string, itemId: string, value: string): void;
   setEditing(itemId: string | null): void;
+  toggleCollapse(folderId: string): void;
 }
 
 export const Folder = (props: Props) => {
@@ -23,6 +24,7 @@ export const Folder = (props: Props) => {
     setItem,
     setEditing,
     createItem,
+    toggleCollapse,
   } = props;
 
   return (
@@ -45,6 +47,7 @@ export const Folder = (props: Props) => {
               {folder.name}
             </p>
             <Button text="Add" onClick={() => createItem(folder.id)} />
+            <Button text="Collapse" onClick={() => toggleCollapse(folder.id)} />
           </div>
         )}
       </Draggable>
@@ -54,6 +57,7 @@ export const Folder = (props: Props) => {
         editedItem={editedItem}
         setItem={setItem}
         setEditing={setEditing}
+        collapsed={folder.collapsed}
       />
     </div>
   );
