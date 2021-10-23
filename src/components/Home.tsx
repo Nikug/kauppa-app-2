@@ -1,15 +1,10 @@
-import React, { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import classNames from "classnames";
 import { reorderItems, reorderFolders } from "../utilities/listItem";
 import { Button } from "./buttons/button";
 import { generateFakeItems } from "./fakeData";
 import { Folder } from "./Folder";
-import {
-  DragDropContext,
-  DragStart,
-  Droppable,
-  DropResult,
-} from "react-beautiful-dnd";
+import { DragDropContext, Droppable, DropResult } from "react-beautiful-dnd";
 
 export const MAIN_ID = "main";
 export const DndTypes = {
@@ -45,7 +40,7 @@ export const Home = () => {
     const newFolder: ItemFolder = {
       id: getUniqueId().toString(),
       name: "New folder",
-      collapsed: false,
+      collapsed: true,
       items: {},
       itemOrder: [],
     };
@@ -120,11 +115,15 @@ export const Home = () => {
     <div className={containerStyles}>
       <h3 className="text-3xl font-bold my-5">Header</h3>
       <Button text="Add folder" onClick={() => createFolder()} />
-      <div className="h-screen border">
+      <div className="h-screen">
         <DragDropContext onDragEnd={moveCard}>
           <Droppable droppableId="main" type={DndTypes.folder}>
             {(provided) => (
-              <div ref={provided.innerRef} {...provided.droppableProps}>
+              <div
+                ref={provided.innerRef}
+                {...provided.droppableProps}
+                className="h-full"
+              >
                 {orderedFolders.map((folder, index) => (
                   <Folder
                     createItem={createItem}

@@ -1,8 +1,44 @@
-import React from "react";
 import classNames from "classnames";
 import { SublistContainer } from "../ListItem/SublistContainer";
-import { Button } from "../buttons/button";
 import { Draggable } from "react-beautiful-dnd";
+import { IconButton } from "../buttons/IconButton";
+import {
+  ChevronDownIcon,
+  ChevronRightIcon,
+  PlusIcon,
+} from "@heroicons/react/outline";
+import { CollapseButton } from "../buttons/CollapseButton";
+
+const folderClasses = (
+  isDragging: boolean,
+  disabled: boolean,
+  collapsed: boolean
+) =>
+  classNames(
+    "shadow",
+    "hover:shadow-lg",
+    { "border-4": isDragging },
+    "border-gray-300",
+    "border",
+    "rounded",
+    { "pb-1": !collapsed }
+  );
+
+const folderTitleClasses = (collapsed: boolean) =>
+  classNames(
+    "shadow",
+    "hover:shadow-md",
+    "bg-purple-600",
+    "text-white",
+    "font-extrabold",
+    "rounded-t",
+    { "rounded-b": collapsed },
+    "flex",
+    "justify-between",
+    "items-center",
+    "py-2",
+    "px-4"
+  );
 
 interface Props {
   folder: ItemFolder;
@@ -30,24 +66,28 @@ export const Folder = (props: Props) => {
   return (
     <div>
       <Draggable draggableId={folder.id} index={order}>
-        {(provided) => (
-          <div ref={provided.innerRef} {...provided.draggableProps}>
-            <div className="flex justify-between items-center py-2 px-4 bg-white">
-              <p
-                {...provided.dragHandleProps}
-                className={classNames(
-                  "font-semibold",
-                  { "text-gray-700": !disabled },
-                  { "text-gray-500": disabled }
-                )}
-              >
-                {folder.name}
-              </p>
-              <Button text="Add" onClick={() => createItem(folder.id)} />
-              <Button
-                text="Collapse"
-                onClick={() => toggleCollapse(folder.id)}
-              />
+        {(provided, snapshot) => (
+          <div
+            ref={provided.innerRef}
+            {...provided.draggableProps}
+            className={folderClasses(
+              snapshot.isDragging,
+              !!disabled,
+              folder.collapsed
+            )}
+          >
+            <div className={folderTitleClasses(folder.collapsed)}>
+              <p {...provided.dragHandleProps}>{folder.name}</p>
+              <div className="flex gap-2">
+                <IconButton
+                  icon={<PlusIcon />}
+                  onClick={() => createItem(folder.id)}
+                />
+                <CollapseButton
+                  collapsed={folder.collapsed}
+                  onClick={() => toggleCollapse(folder.id)}
+                />
+              </div>
             </div>
             <SublistContainer
               folderId={folder.id}

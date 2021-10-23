@@ -24,5 +24,7 @@ module.exports = {
   rules: {
     "@typescript-eslint/explicit-module-boundary-types": "off",
     "react/display-name": "off",
+    "react/jsx-uses-react": "off",
+    "react/react-in-jsx-scope": "off",
   },
 };

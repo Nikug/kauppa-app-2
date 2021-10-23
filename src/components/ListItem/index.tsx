@@ -4,17 +4,19 @@ import { EditView } from "./EditView";
 import classNames from "classnames";
 import { Draggable } from "react-beautiful-dnd";
 
-const itemStyles = classNames(
-  "w-full",
-  "bg-white",
-  "shadow",
-  "border-gray-300",
-  "border",
-  "rounded",
-  "py-2",
-  "px-4",
-  "hover:shadow-md"
-);
+const itemStyles = (isDragging: boolean, disabled: boolean) =>
+  classNames(
+    "w-full",
+    "bg-white",
+    "py-2",
+    "px-4",
+    "border",
+    "border-gray-300",
+    "border-opacity-0",
+    "hover:border-opacity-100",
+    { "border-opacity-100": isDragging },
+    { "bg-gray-200": disabled }
+  );
 
 interface Props {
   folderId: string;
@@ -74,12 +76,11 @@ export const ListItem = (props: Props) => {
       isDragDisabled={!!editedItem}
       index={order}
     >
-      {(provided) => (
+      {(provided, snapshot) => (
         <div
-          className={classNames(itemStyles, { "bg-gray-100": disabled })}
+          className={itemStyles(snapshot.isDragging, disabled)}
           ref={provided.innerRef}
           {...provided.draggableProps}
-          {...provided.dragHandleProps}
         >
           <div>
             {isEdited ? (
@@ -93,6 +94,7 @@ export const ListItem = (props: Props) => {
               />
             ) : (
               <DefaultView
+                dragHandleProps={provided.dragHandleProps}
                 item={item}
                 disabled={disabled}
                 handleEditing={handleEditing}
