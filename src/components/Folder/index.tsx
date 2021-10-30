@@ -2,11 +2,7 @@ import classNames from "classnames";
 import { SublistContainer } from "../ListItem/SublistContainer";
 import { Draggable } from "react-beautiful-dnd";
 import { IconButton } from "../buttons/IconButton";
-import {
-  ChevronDownIcon,
-  ChevronRightIcon,
-  PlusIcon,
-} from "@heroicons/react/outline";
+import { PlusIcon } from "@heroicons/react/outline";
 import { CollapseButton } from "../buttons/CollapseButton";
 
 const folderClasses = (

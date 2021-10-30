@@ -2,16 +2,11 @@ import { ListItem } from ".";
 import classNames from "classnames";
 import { Droppable } from "react-beautiful-dnd";
 import { DndTypes } from "../Home";
-import { useLayoutEffect, useRef, useState } from "react";
+import AnimateHeight from "react-animate-height";
 
-const containerClasses = (collapsed: boolean) =>
-  classNames(
-    "min-h-16",
-    "overflow-hidden",
-    "flex",
-    "flex-col",
-    "transition-all"
-  );
+const containerClasses = () =>
+  classNames("block", "min-h-16", "flex", "flex-col", "flex-shrink-0");
+const COLLAPSE_ANIMATION_DURATION = 150;
 
 interface Props {
   folderId: string;
@@ -24,29 +19,18 @@ interface Props {
 
 export const SublistContainer = (props: Props) => {
   const { folderId, collapsed, items, editedItem, setItem, setEditing } = props;
-  const [listHeight, setListHeight] = useState<number>(0);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useLayoutEffect(() => {
-    if (!collapsed) {
-      const height = containerRef.current?.scrollHeight;
-      setListHeight(height ?? 0);
-    }
-  }, [containerRef, setListHeight, collapsed, items]);
 
   return items ? (
     <Droppable droppableId={folderId} type={DndTypes.item}>
       {(provided) => (
         <div ref={provided.innerRef} {...provided.droppableProps}>
-          <div
-            ref={containerRef}
-            style={{
-              height: collapsed ? 0 : listHeight,
-            }}
-            className={containerClasses(collapsed)}
+          <AnimateHeight
+            duration={COLLAPSE_ANIMATION_DURATION}
+            height={collapsed ? 0 : "auto"}
+            easing="ease-out"
           >
-            {!collapsed &&
-              items.map((item, index) => (
+            <div className={containerClasses()}>
+              {items.map((item, index) => (
                 <ListItem
                   key={item.id}
                   folderId={folderId}
@@ -57,8 +41,9 @@ export const SublistContainer = (props: Props) => {
                   setEditing={setEditing}
                 />
               ))}
-            {provided.placeholder}
-          </div>
+              {provided.placeholder}
+            </div>
+          </AnimateHeight>
         </div>
       )}
     </Droppable>

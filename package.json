@@ -14,6 +14,7 @@
     "@types/react-dom": "^17.0.0",
     "lodash.clonedeep": "^4.5.0",
     "react": "^17.0.2",
+    "react-animate-height": "^2.0.23",
     "react-beautiful-dnd": "^13.1.0",
     "react-dom": "^17.0.2",
     "react-scripts": "4.0.3",
@@ -25,7 +26,6 @@
     "build": "craco build",
     "test": "craco test",
     "eject": "craco eject",
-    "prepare": "husky install",
     "lint": "eslint . --ext .ts,.tsx"
   },
   "browserslist": {
@@ -54,7 +54,6 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^5.1.0",
     "eslint-plugin-react": "^7.26.0",
-    "husky": "^7.0.4",
     "postcss": "^7.0.38",
     "tailwindcss": "npm:@tailwindcss/postcss7-compat@^2.2.16"
   }
