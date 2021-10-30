@@ -3,6 +3,7 @@ import classNames from "classnames";
 import { Droppable } from "react-beautiful-dnd";
 import { DndTypes } from "../Home";
 import AnimateHeight from "react-animate-height";
+import { EmptyListItem } from "./EmptyListItem";
 
 const containerClasses = () =>
   classNames("block", "min-h-16", "flex", "flex-col", "flex-shrink-0");
@@ -20,7 +21,7 @@ interface Props {
 export const SublistContainer = (props: Props) => {
   const { folderId, collapsed, items, editedItem, setItem, setEditing } = props;
 
-  return items ? (
+  return (
     <Droppable droppableId={folderId} type={DndTypes.item}>
       {(provided) => (
         <div ref={provided.innerRef} {...provided.droppableProps}>
@@ -30,22 +31,26 @@ export const SublistContainer = (props: Props) => {
             easing="ease-out"
           >
             <div className={containerClasses()}>
-              {items.map((item, index) => (
-                <ListItem
-                  key={item.id}
-                  folderId={folderId}
-                  item={item}
-                  order={index}
-                  editedItem={editedItem}
-                  setItem={setItem}
-                  setEditing={setEditing}
-                />
-              ))}
+              {items && items.length > 0 ? (
+                items.map((item, index) => (
+                  <ListItem
+                    key={item.id}
+                    folderId={folderId}
+                    item={item}
+                    order={index}
+                    editedItem={editedItem}
+                    setItem={setItem}
+                    setEditing={setEditing}
+                  />
+                ))
+              ) : (
+                <EmptyListItem />
+              )}
               {provided.placeholder}
             </div>
           </AnimateHeight>
         </div>
       )}
     </Droppable>
-  ) : null;
+  );
 };
