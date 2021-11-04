@@ -1,10 +1,11 @@
+import { DragDropContext, DropResult, Droppable } from "react-beautiful-dnd";
+import { reorderFolders, reorderItems } from "../utilities/listItem";
 import { useCallback, useMemo, useState } from "react";
-import classNames from "classnames";
-import { reorderItems, reorderFolders } from "../utilities/listItem";
+
 import { Button } from "./buttons/button";
-import { generateFakeItems } from "./fakeData";
 import { Folder } from "./Folder";
-import { DragDropContext, Droppable, DropResult } from "react-beautiful-dnd";
+import classNames from "classnames";
+import { generateFakeItems } from "./fakeData";
 
 export const MAIN_ID = "main";
 export const DndTypes = {
@@ -72,6 +73,13 @@ export const Home = () => {
     });
   };
 
+  const setFolderName = (folderId: string, value: string) => {
+    setFolders((prev) => {
+      prev.folders[folderId].name = value;
+      return prev;
+    });
+  };
+
   const moveCard = useCallback((result: DropResult) => {
     if (result.destination == null) return;
     if (result.type === DndTypes.item) {
@@ -122,7 +130,7 @@ export const Home = () => {
               <div
                 ref={provided.innerRef}
                 {...provided.droppableProps}
-                className="h-full"
+                className="h-full flex flex-col gap-1"
               >
                 {orderedFolders.map((folder, index) => (
                   <Folder
@@ -131,6 +139,7 @@ export const Home = () => {
                     order={index}
                     folder={folder}
                     setItem={setItem}
+                    setFolderName={setFolderName}
                     setEditing={setEditing}
                     editedItem={isEditing}
                     toggleCollapse={toggleCollapse}

@@ -1,8 +1,10 @@
-import React, { useCallback, useEffect, useRef } from "react";
+import React, { useCallback, useRef } from "react";
+
 import { DefaultView } from "./DefaultView";
+import { DetectOutsideClick } from "../utilities/DetectOutsideClick";
+import { Draggable } from "react-beautiful-dnd";
 import { EditView } from "./EditView";
 import classNames from "classnames";
-import { Draggable } from "react-beautiful-dnd";
 
 const itemStyles = (isDragging: boolean, disabled: boolean) =>
   classNames(
@@ -30,7 +32,6 @@ interface Props {
 export const ListItem = (props: Props) => {
   const { folderId, item, order, editedItem, setItem, setEditing } = props;
   const inputRef = useRef<HTMLInputElement>(null);
-  const inputContainerRef = useRef<HTMLDivElement>(null);
 
   const disabled = editedItem != null && editedItem !== item.id;
   const isEdited = editedItem === item.id;
@@ -38,36 +39,15 @@ export const ListItem = (props: Props) => {
   const handleUpdate = useCallback(() => {
     if (!inputRef) return;
     const newValue = inputRef.current?.value;
-    setItem(folderId, item.id, newValue ?? "");
     setEditing(null);
-  }, [inputRef, setItem, setEditing, item.id, folderId]);
 
-  const handleOutsideClick = useCallback(
-    (event: MouseEvent) => {
-      if (
-        inputContainerRef.current &&
-        !inputContainerRef.current.contains(event.target as Node)
-      ) {
-        handleUpdate();
-      }
-    },
-    [inputContainerRef, handleUpdate]
-  );
-
-  useEffect(() => {
-    document.addEventListener("mousedown", handleOutsideClick);
-    return () => document.removeEventListener("mousedown", handleOutsideClick);
-  }, [handleOutsideClick]);
+    if (newValue === item.item) return;
+    setItem(folderId, item.id, newValue ?? "");
+  }, [inputRef, setItem, setEditing, item, folderId]);
 
   const handleEditing = (state: boolean) => {
     if (disabled) return;
     state ? setEditing(item.id) : setEditing(null);
-  };
-
-  const handleEnter = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === "Enter") {
-      handleUpdate();
-    }
   };
 
   return (
@@ -84,14 +64,14 @@ export const ListItem = (props: Props) => {
         >
           <div>
             {isEdited ? (
-              <EditView
-                item={item}
-                inputContainerRef={inputContainerRef}
-                inputRef={inputRef}
-                handleEnter={handleEnter}
-                handleEditing={handleEditing}
-                handleUpdate={handleUpdate}
-              />
+              <DetectOutsideClick onOutsideClick={handleUpdate}>
+                <EditView
+                  text={item.item}
+                  inputRef={inputRef}
+                  handleEditing={handleEditing}
+                  handleUpdate={handleUpdate}
+                />
+              </DetectOutsideClick>
             ) : (
               <DefaultView
                 dragHandleProps={provided.dragHandleProps}
