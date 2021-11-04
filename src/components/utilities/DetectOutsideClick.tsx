@@ -27,7 +27,7 @@ export const DetectOutsideClick = (props: Props) => {
   }, [handleClick]);
 
   return (
-    <div ref={containerRef} onClick={handleClick}>
+    <div className="w-full" ref={containerRef} onClick={handleClick}>
       {children}
     </div>
   );
